@@ -41,7 +41,28 @@ const Login: React.FC = () => {
       toast.success('Welcome back!');
       navigate('/admin');
     } catch (error: any) {
-      toast.error(error.message || 'Login failed');
+      const msg = error?.message || String(error) || 'Login failed';
+      // Provide actionable guidance when Supabase looks unconfigured
+      if (msg.toLowerCase().includes('supabase')) {
+        toast.error(msg);
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDemoSignIn = async () => {
+    setIsSubmitting(true);
+    try {
+      // Use the demo sign-in (client-only mock) for quick access
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      await (signIn as any).signInDemo ? (signIn as any).signInDemo() : (await (useAuthStore.getState() as any).signInDemo());
+      toast.success('Signed in as demo admin');
+      navigate('/admin');
+    } catch (err: any) {
+      toast.error(err?.message || 'Demo sign-in failed');
     } finally {
       setIsSubmitting(false);
     }
@@ -142,7 +163,7 @@ const Login: React.FC = () => {
 
           <div className="mt-6 text-center">
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              Demo credentials: admin@example.com / password123
+              Use your Supabase credentials to sign in.
             </p>
           </div>
           <div className="mt-6 text-center">

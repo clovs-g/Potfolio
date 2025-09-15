@@ -231,13 +231,13 @@ const Projects: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
-                  <Card className="overflow-hidden h-full flex flex-col">
+                  <Card transparent className="overflow-hidden h-full flex flex-col">
                     {project.image_url && (
-                      <div className="aspect-w-16 aspect-h-9 bg-gray-200 dark:bg-gray-700">
+                      <div className="aspect-w-16 aspect-h-9 overflow-hidden">
                         <img
                           src={project.image_url}
                           alt={project.title}
-                          className="w-full h-48 object-cover"
+                          className="w-full h-48 object-cover rounded-t-xl"
                         />
                       </div>
                     )}
@@ -258,9 +258,9 @@ const Projects: React.FC = () => {
                             <span
                               key={tech}
                               className={`px-2 py-1 text-xs rounded-md ${
-                                isDark 
-                                  ? 'bg-gray-700 text-gray-300' 
-                                  : 'bg-gray-100 text-gray-700'
+                                isDark
+                                  ? 'bg-gray-700/30 text-gray-300'
+                                  : 'bg-white/10 text-gray-700'
                               }`}
                             >
                               {tech}

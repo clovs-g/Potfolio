@@ -180,6 +180,33 @@ npm run preview
 
 ## 📈 Performance Optimizations
 
+## 🔒 Deployment / Environment variables (important)
+
+The app requires Supabase configuration to be present in the environment where it runs (both locally and in Vercel). Add the following environment variables:
+
+```env
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_public_key
+```
+
+Optional testing helper (do NOT enable in public production unless you understand the risks):
+
+```env
+# Allows an in-memory demo admin login. Set to 'true' to enable.
+VITE_ALLOW_DEMO_LOGIN=true
+
+# Demo credentials (only used when VITE_ALLOW_DEMO_LOGIN=true)
+VITE_DEMO_ADMIN_EMAIL=admin@example.com
+VITE_DEMO_ADMIN_PASSWORD=password123
+```
+
+On Vercel: go to Project Settings → Environment Variables and add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (and the demo vars only for safe testing environments). After updating env vars, trigger a redeploy.
+
+If you see "Supabase appears to be unconfigured" in the admin login toast, it means these environment variables were not detected in the running app.
+
+Quick access: The admin login page contains a "Sign in with demo" button which creates a client-side mock admin user for testing; this does NOT authenticate with Supabase and should only be used for local/dev testing or secure preview environments.
+
+
 - **Code Splitting**: Routes and components are lazy-loaded
 - **Image Optimization**: Proper image loading and compression
 - **Bundle Analysis**: Optimized bundle size with tree shaking

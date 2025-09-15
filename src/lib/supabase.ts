@@ -3,7 +3,20 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
 
+// Helpful flag consumers can use to detect misconfiguration in environments like Vercel
+export const supabaseConfigured = (
+  !!import.meta.env.VITE_SUPABASE_URL &&
+  !!import.meta.env.VITE_SUPABASE_ANON_KEY &&
+  import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+  import.meta.env.VITE_SUPABASE_ANON_KEY !== 'placeholder-key'
+);
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export function supabaseConfigWarning(): string | null {
+  if (supabaseConfigured) return null;
+  return 'Supabase appears to be unconfigured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment (e.g. Vercel Environment Variables).';
+}
 
 // Database helper functions
 export const projectsService = {
