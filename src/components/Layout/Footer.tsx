@@ -1,5 +1,6 @@
 import React from 'react';
 import { Github, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import clovisImg from '../../../image/clovis.png';
 import { useThemeStore } from '../../stores/themeStore';
 
 const Footer: React.FC = () => {
@@ -22,7 +23,7 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className={`w-8 h-8 rounded-lg overflow-hidden shadow-sm flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-white'}`}>
-                <img src="/image/clovis.png" alt="Clovis logo" className="w-full h-full object-cover" />
+                <img src={clovisImg} alt="Clovis logo" className="w-full h-full object-cover" />
               </div>
               <span className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Ir Rugendabanga Clovis

@@ -4,6 +4,7 @@ import { Download, MapPin, Mail, Phone, Linkedin, Github } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
 import { aboutService } from '../../lib/supabase';
 import type { About } from '../../types';
+import clovisImg from '../../../image/clovis.png';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 
@@ -154,7 +155,7 @@ const AdminAbout: React.FC = () => {
             >
               <Card className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto rounded-full mb-4 overflow-hidden bg-white shadow-sm">
-                  <img src="/image/clovis.png" alt="Clovis" className="w-full h-full object-cover" />
+                  <img src={clovisImg} alt="Clovis" className="w-full h-full object-cover" />
                 </div>
                 <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Ir Rugendabanga Clovis</h3>
                 <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>IT Professional & Technology Leader</p>

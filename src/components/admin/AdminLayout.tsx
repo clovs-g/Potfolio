@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import clovisImg from '../../../image/clovis.png';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -76,7 +77,7 @@ const AdminLayout: React.FC = () => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <Link to="/admin" className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-lg overflow-hidden shadow-lg flex items-center justify-center bg-white">
-              <img src="/image/clovis.png" alt="Clovis logo" className="w-full h-full object-cover" />
+              <img src={clovisImg} alt="Clovis logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>

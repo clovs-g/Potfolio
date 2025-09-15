@@ -8,6 +8,7 @@ import { useThemeStore } from '../../stores/themeStore';
 import { useAuthStore } from '../../stores/authStore';
 import Button from '../../components/UI/Button';
 import Card from '../../components/UI/Card';
+import clovisImg from '../../../image/clovis.png';
 
 const schema = yup.object({
   email: yup.string().required('Email is required').email('Invalid email format'),
@@ -54,7 +55,7 @@ const SignUp: React.FC = () => {
         <Card className="p-8">
           <div className="text-center mb-8">
             <div className="w-16 h-16 mx-auto rounded-lg overflow-hidden bg-white shadow-sm flex items-center justify-center">
-              <img src="/image/clovis.png" alt="Clovis" className="w-full h-full object-cover" />
+              <img src={clovisImg} alt="Clovis" className="w-full h-full object-cover" />
             </div>
             <h2 className={`text-2xl font-bold mt-4 mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Admin Sign Up</h2>
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Create a new admin account</p>

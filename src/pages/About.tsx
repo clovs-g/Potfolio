@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Download, MapPin, Mail, Phone, Linkedin, Github } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 import { aboutService } from '../lib/supabase';
+import clovisImg from '../../image/clovis.png';
 import type { About } from '../types';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
@@ -82,7 +83,7 @@ I believe in the power of technology to transform businesses and improve lives. 
             >
               <Card className="p-6 text-center">
                 <div className="w-32 h-32 mx-auto rounded-full mb-4 overflow-hidden bg-white shadow-sm">
-                  <img src="/image/clovis.png" alt="Clovis" className="w-full h-full object-cover" />
+              <img src={clovisImg} alt="Clovis" className="w-full h-full object-cover" />
                 </div>
                 <h3 className={`text-xl font-bold mb-2 ${
                   isDark ? 'text-white' : 'text-gray-900'

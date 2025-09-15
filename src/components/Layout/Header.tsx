@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import clovisImg from '../../../image/clovis.png';
 import { Moon, Sun, Menu, X } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,7 +31,7 @@ const Header: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className={`w-10 h-10 rounded-lg overflow-hidden shadow-lg flex items-center justify-center bg-white`}> 
-              <img src="/image/clovis.png" alt="Clovis logo" className="w-full h-full object-cover" />
+              <img src={clovisImg} alt="Clovis logo" className="w-full h-full object-cover" />
             </div>
             <span className={`hidden sm:block font-bold text-xl ${isDark ? 'text-white' : 'text-gray-900'}`}>
               Clovis
