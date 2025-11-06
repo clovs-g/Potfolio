@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Calendar, MapPin, Award } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 import { experienceService } from '../lib/supabase';
+import type { Certificate } from '../types';
 import type { Experience } from '../types';
 import Card from '../components/UI/Card';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
@@ -10,13 +11,72 @@ import LoadingSpinner from '../components/UI/LoadingSpinner';
 const ExperiencePage: React.FC = () => {
   const { isDark } = useThemeStore();
   const [experiences, setExperiences] = useState<Experience[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+  const [certs, setCerts] = useState<Certificate[]>([]);
 
   useEffect(() => {
     const loadExperiences = async () => {
+      setIsFetching(true);
+      // 1) Instant cache render
       try {
-        const data = await experienceService.getAll();
-        setExperiences(data || []);
+        const cachedExp = sessionStorage.getItem('experience_cache_v1');
+        if (cachedExp) setExperiences(JSON.parse(cachedExp) as Experience[]);
+        const cachedCerts = sessionStorage.getItem('certificates_cache_v1');
+        if (cachedCerts) setCerts(JSON.parse(cachedCerts) as Certificate[]);
+        if (!cachedExp) {
+          // If no cache, display demo experiences immediately for perceived speed
+          const demoExperiences: Experience[] = [
+            {
+              id: '1',
+              company: 'TechCorp Solutions',
+              position: 'Senior Network Engineer',
+              duration: '2022 - Present',
+              description: 'Leading network infrastructure projects for enterprise clients, specializing in SD-WAN implementations and network security optimization. Managed a team of 5 engineers and delivered solutions that improved network performance by 45%.',
+              skills: ['Network Architecture', 'SD-WAN', 'Cisco', 'Security', 'Team Leadership'],
+              created_at: '2024-01-01'
+            },
+            {
+              id: '2',
+              company: 'InnovateAI Labs',
+              position: 'AI Engineering Consultant',
+              duration: '2021 - 2022',
+              description: 'Developed and deployed machine learning models for various clients, focusing on natural language processing and computer vision applications. Built scalable ML pipelines and reduced model inference time by 60%.',
+              skills: ['Python', 'TensorFlow', 'PyTorch', 'NLP', 'Computer Vision', 'MLOps'],
+              created_at: '2024-01-02'
+            }
+          ];
+          setExperiences(demoExperiences);
+        }
+      } catch {}
+
+      // 2) Fetch fresh with soft timeout so UI isn't blocked
+      const withTimeout = <T,>(p: Promise<T>, ms: number) => new Promise<T>((resolve, reject) => {
+        const t = setTimeout(() => reject(new Error('timeout')), ms);
+        p.then((v) => { clearTimeout(t); resolve(v); }).catch((e) => { clearTimeout(t); reject(e); });
+      });
+
+      try {
+        const [expRes, certRes] = await Promise.allSettled([
+          withTimeout(experienceService.getAll(), 800),
+          (async () => {
+            try {
+              const supabaseLib = await import('../lib/supabase');
+              return await withTimeout(supabaseLib.certificatesService.getAll(), 800);
+            } catch (e) {
+              const raw = localStorage.getItem('certificates_local');
+              return raw ? (JSON.parse(raw) as Certificate[]) : [];
+            }
+          })()
+        ]);
+
+        if (expRes.status === 'fulfilled') {
+          setExperiences(expRes.value || []);
+          try { sessionStorage.setItem('experience_cache_v1', JSON.stringify(expRes.value || [])); } catch {}
+        }
+        if (certRes.status === 'fulfilled') {
+          setCerts((certRes.value as Certificate[]) || []);
+          try { sessionStorage.setItem('certificates_cache_v1', JSON.stringify(certRes.value || [])); } catch {}
+        }
       } catch (error) {
         console.error('Error loading experiences:', error);
         // Fallback demo data
@@ -60,29 +120,16 @@ const ExperiencePage: React.FC = () => {
         ];
         setExperiences(demoExperiences);
       } finally {
-        setLoading(false);
+        setIsFetching(false);
       }
     };
 
     loadExperiences();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
+  // No blocking spinner; we render skeletons below if needed
 
-  const certifications = [
-    'Cisco Certified Network Professional (CCNP)',
-    'AWS Solutions Architect',
-    'Google Cloud Professional ML Engineer',
-    'Microsoft Azure AI Engineer',
-    'CompTIA Security+',
-    'Project Management Professional (PMP)'
-  ];
+  // Removed static certification chips; we only show uploaded certificates when available
 
   return (
     <div className={`min-h-screen pt-24 pb-12 transition-colors duration-300 ${
@@ -94,7 +141,7 @@ const ExperiencePage: React.FC = () => {
           className="text-center mb-12"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.5 }}
         >
           <h1 className={`text-4xl sm:text-5xl font-bold mb-6 ${
             isDark ? 'text-white' : 'text-gray-900'
@@ -109,14 +156,9 @@ const ExperiencePage: React.FC = () => {
         </motion.div>
 
         {/* Experience Timeline */}
-        <div className="space-y-8">
-          {experiences.map((experience, index) => (
-            <motion.div
-              key={experience.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.2 }}
-            >
+        <div className="space-y-8" style={{ contain: 'content' }}>
+          {(experiences.length ? experiences : Array.from({ length: 4 }).map((_, i) => ({ id: `sk-${i}` } as any))).map((experience) => (
+            <div key={experience.id} style={{ contentVisibility: 'auto' }}>
               <Card className="p-8 relative">
                 {/* Timeline dot */}
                 <div className={`absolute -left-4 top-8 w-8 h-8 rounded-full border-4 ${
@@ -133,86 +175,77 @@ const ExperiencePage: React.FC = () => {
                       <h3 className={`text-xl font-bold ${
                         isDark ? 'text-white' : 'text-gray-900'
                       }`}>
-                        {experience.position}
+                        {('position' in experience) ? experience.position : <span className="block h-6 w-48 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />}
                       </h3>
                       <p className={`text-lg font-medium ${
                         isDark ? 'text-blue-400' : 'text-blue-600'
                       }`}>
-                        {experience.company}
+                        {('company' in experience) ? experience.company : <span className="inline-block h-5 w-40 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />}
                       </p>
                     </div>
                     <div className="flex items-center space-x-2 text-sm text-gray-500 mt-2 sm:mt-0">
                       <Calendar className="w-4 h-4" />
-                      <span>{experience.duration}</span>
+                      <span>{('duration' in experience) ? experience.duration : <span className="inline-block h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />}</span>
                     </div>
                   </div>
 
                   <p className={`text-base mb-4 ${
                     isDark ? 'text-gray-300' : 'text-gray-700'
                   }`}>
-                    {experience.description}
+                    {('description' in experience) ? experience.description : <span className="block h-16 w-full bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />}
                   </p>
 
                   <div className="flex flex-wrap gap-2">
-                    {experience.skills.map((skill) => (
+                    {('skills' in experience ? experience.skills : Array.from({ length: 5 }).map((_, i) => `sk${i}`)).map((skill: string) => (
                       <span
                         key={skill}
                         className={`px-3 py-1 text-xs rounded-full ${
                           isDark 
                             ? 'bg-gray-700 text-gray-300' 
                             : 'bg-gray-100 text-gray-700'
-                        }`}
+                        } ${skill.startsWith('sk') ? 'animate-pulse opacity-60 w-16 h-4' : ''}`}
                       >
-                        {skill}
+                        {skill.startsWith('sk') ? '' : skill}
                       </span>
                     ))}
                   </div>
                 </div>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        {/* Certifications */}
-        <motion.div
-          className="mt-16"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
-          <Card className="p-8">
-            <div className="flex items-center mb-6">
-              <Award className={`w-6 h-6 mr-3 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-              <h2 className={`text-2xl font-bold ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}>
-                Certifications & Qualifications
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {certifications.map((cert, index) => (
-                <motion.div
-                  key={cert}
-                  className={`flex items-center p-3 rounded-lg ${
-                    isDark ? 'bg-gray-700/50' : 'bg-gray-50'
-                  }`}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                >
-                  <div className={`w-2 h-2 rounded-full mr-3 ${
-                    isDark ? 'bg-blue-400' : 'bg-blue-600'
-                  }`} />
-                  <span className={`text-sm ${
-                    isDark ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    {cert}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </Card>
-        </motion.div>
+        {/* Certificates (uploaded only) */}
+        {certs.length > 0 && (
+          <motion.div
+            className="mt-16"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <Card className="p-8">
+              <div className="flex items-center mb-6">
+                <Award className={`w-6 h-6 mr-3 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  Certificates
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                {certs.map((c) => (
+                  <a
+                    key={c.id || c.path}
+                    href={c.url || '#'}
+                    target={c.url ? '_blank' : undefined}
+                    rel={c.url ? 'noreferrer' : undefined}
+                    className={`${isDark ? 'text-blue-300 hover:text-blue-200' : 'text-blue-700 hover:text-blue-600'} underline`}
+                  >
+                    {c.name}
+                  </a>
+                ))}
+              </div>
+            </Card>
+          </motion.div>
+        )}
       </div>
     </div>
   );

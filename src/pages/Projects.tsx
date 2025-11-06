@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useMemo, useState, useDeferredValue } from 'react';
 import { Filter, ExternalLink, Github, Search } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 import { projectsService } from '../lib/supabase';
@@ -7,14 +6,16 @@ import type { Project } from '../types';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+// ImageWithFallback removed — restored original <img> usage below
 
 const Projects: React.FC = () => {
   const { isDark } = useThemeStore();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const deferredQuery = useDeferredValue(searchQuery);
 
   const categories = [
     { id: 'all', name: 'All Projects' },
@@ -25,9 +26,68 @@ const Projects: React.FC = () => {
 
   useEffect(() => {
     const loadProjects = async () => {
+      // Instant render from cache if available
+      setIsFetching(true);
       try {
-        const data = await projectsService.getAll();
+        const cached = sessionStorage.getItem('projects_cache_v1');
+        if (cached) {
+          const parsed = JSON.parse(cached) as Project[];
+          setProjects(parsed);
+        }
+        // If no cache, show demo data immediately so content appears fast
+        if (!cached) {
+          const demoProjects: Project[] = [
+            {
+              id: '1',
+              title: 'Network Infrastructure Optimization',
+              description: 'Comprehensive network redesign for a large enterprise, improving performance by 40% and reducing latency by 60%.',
+              tech_stack: ['Cisco', 'MPLS', 'BGP', 'OSPF', 'SD-WAN'],
+              image_url: 'https://images.pexels.com/photos/2881232/pexels-photo-2881232.jpeg',
+              demo_url: null,
+              repo_url: null,
+              category: 'network',
+              created_at: '2024-01-15',
+              updated_at: '2024-01-15'
+            },
+            {
+              id: '2',
+              title: 'AI-Powered Analytics Dashboard',
+              description: 'Machine learning dashboard providing real-time insights and predictive analytics for business intelligence.',
+              tech_stack: ['Python', 'TensorFlow', 'React', 'D3.js', 'PostgreSQL'],
+              image_url: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg',
+              demo_url: 'https://demo.example.com',
+              repo_url: 'https://github.com/example',
+              category: 'ai',
+              created_at: '2024-02-10',
+              updated_at: '2024-02-10'
+            },
+            {
+              id: '3',
+              title: 'E-Commerce Platform',
+              description: 'Full-stack e-commerce solution with modern UI, payment integration, and admin dashboard.',
+              tech_stack: ['React', 'Node.js', 'MongoDB', 'Stripe', 'AWS'],
+              image_url: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg',
+              demo_url: 'https://demo.example.com',
+              repo_url: 'https://github.com/example',
+              category: 'web',
+              created_at: '2024-03-05',
+              updated_at: '2024-03-05'
+            }
+          ];
+          setProjects(demoProjects);
+        }
+      } catch {}
+
+      try {
+        // Add a soft timeout so UI never feels blocked
+        const withTimeout = <T,>(p: Promise<T>, ms: number) => new Promise<T>((resolve, reject) => {
+          const t = setTimeout(() => reject(new Error('timeout')), ms);
+          p.then((v) => { clearTimeout(t); resolve(v); }).catch((e) => { clearTimeout(t); reject(e); });
+        });
+
+        const data = await withTimeout(projectsService.getAll(), 800);
         setProjects(data || []);
+        try { sessionStorage.setItem('projects_cache_v1', JSON.stringify(data || [])); } catch {}
       } catch (error) {
         console.error('Error loading projects:', error);
         // Fallback demo data
@@ -107,42 +167,32 @@ const Projects: React.FC = () => {
         ];
         setProjects(demoProjects);
       } finally {
-        setLoading(false);
+        setIsFetching(false);
       }
     };
 
     loadProjects();
   }, []);
 
-  useEffect(() => {
+  const computedFiltered = useMemo(() => {
     let filtered = projects;
-
-    // Filter by category
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(project => project.category === selectedCategory);
+      filtered = filtered.filter(p => p.category === selectedCategory);
     }
-
-    // Filter by search query
-    if (searchQuery) {
-      filtered = filtered.filter(project =>
-        project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.tech_stack.some(tech => 
-          tech.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+    if (deferredQuery) {
+      const q = deferredQuery.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.title.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.tech_stack.some(t => t.toLowerCase().includes(q))
       );
     }
+    return filtered;
+  }, [projects, selectedCategory, deferredQuery]);
 
-    setFilteredProjects(filtered);
-  }, [projects, selectedCategory, searchQuery]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    setFilteredProjects(computedFiltered);
+  }, [computedFiltered]);
 
   return (
     <div className={`min-h-screen pt-24 pb-12 transition-colors duration-300 ${
@@ -150,12 +200,7 @@ const Projects: React.FC = () => {
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
+        <div className="text-center mb-12">
           <h1 className={`text-4xl sm:text-5xl font-bold mb-6 ${
             isDark ? 'text-white' : 'text-gray-900'
           }`}>
@@ -166,15 +211,10 @@ const Projects: React.FC = () => {
           }`}>
             A showcase of my work across network infrastructure, web development, and AI engineering
           </p>
-        </motion.div>
+        </div>
 
         {/* Filters and Search */}
-        <motion.div
-          className="flex flex-col sm:flex-row gap-4 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
           {/* Search */}
           <div className="relative flex-1">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
@@ -212,89 +252,90 @@ const Projects: React.FC = () => {
               ))}
             </select>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Projects Grid */}
-        <AnimatePresence mode="wait">
-          {filteredProjects.length > 0 ? (
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              {filteredProjects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <Card transparent className="overflow-hidden h-full flex flex-col">
-                    {project.image_url && (
-                      <div className="aspect-w-16 aspect-h-9 overflow-hidden">
-                        <img
-                          src={project.image_url}
-                          alt={project.title}
-                          className="w-full h-48 object-cover rounded-t-xl"
-                        />
-                      </div>
-                    )}
-                    <div className="p-6 flex-1 flex flex-col">
-                      <div className="flex-1">
-                        <h3 className={`text-xl font-bold mb-3 ${
-                          isDark ? 'text-white' : 'text-gray-900'
-                        }`}>
-                          {project.title}
-                        </h3>
-                        <p className={`text-sm mb-4 ${
-                          isDark ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
-                          {project.description}
-                        </p>
-                        <div className="flex flex-wrap gap-2 mb-6">
-                          {project.tech_stack.map((tech) => (
-                            <span
-                              key={tech}
-                              className={`px-2 py-1 text-xs rounded-md ${
-                                isDark
-                                  ? 'bg-gray-700/30 text-gray-300'
-                                  : 'bg-white/10 text-gray-700'
-                              }`}
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        {project.demo_url && (
-                          <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
-                            <Button variant="primary" size="sm" className="w-full flex items-center justify-center">
-                              <ExternalLink className="w-4 h-4 mr-1" />
-                              Demo
-                            </Button>
-                          </a>
-                        )}
-                        {project.repo_url && (
-                          <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
-                            <Button variant="outline" size="sm" className="w-full flex items-center justify-center">
-                              <Github className="w-4 h-4 mr-1" />
-                              GitHub
-                            </Button>
-                          </a>
-                        )}
+        {/* Projects Grid (no AnimatePresence to reduce overhead) */}
+        {filteredProjects.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style={{ contain: 'content' }}>
+            {filteredProjects.map((project) => (
+              <div key={project.id} style={{ contentVisibility: 'auto' }}>
+                <Card transparent className="overflow-hidden h-full flex flex-col">
+                  {project.image_url && (
+                    <div className="aspect-w-16 aspect-h-9 overflow-hidden">
+                      <img
+                        src={project.image_url}
+                        alt={project.title}
+                        className="w-full h-48 object-cover rounded-t-xl"
+                        loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
+                        width={1280}
+                        height={720}
+                      />
+                    </div>
+                  )}
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="flex-1">
+                      <h3 className={`text-xl font-bold mb-3 ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        {project.title}
+                      </h3>
+                      <p className={`text-sm mb-4 ${
+                        isDark ? 'text-gray-400' : 'text-gray-600'
+                      }`}>
+                        {project.description}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {project.tech_stack.map((tech) => (
+                          <span
+                            key={tech}
+                            className={`px-2 py-1 text-xs rounded-md ${
+                              isDark
+                                ? 'bg-gray-700/30 text-gray-300'
+                                : 'bg-white/10 text-gray-700'
+                            }`}
+                          >
+                            {tech}
+                          </span>
+                        ))}
                       </div>
                     </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <div className="text-center py-12 text-gray-400">No projects found.</div>
-          )}
-        </AnimatePresence>
+                    <div className="flex gap-2">
+                      {project.demo_url && (
+                        <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                          <Button variant="primary" size="sm" className="w-full flex items-center justify-center">
+                            <ExternalLink className="w-4 h-4 mr-1" />
+                            Demo
+                          </Button>
+                        </a>
+                      )}
+                      {project.repo_url && (
+                        <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                          <Button variant="outline" size="sm" className="w-full flex items-center justify-center">
+                            <Github className="w-4 h-4 mr-1" />
+                            GitHub
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="w-full h-48 bg-gray-200 dark:bg-gray-800 rounded-xl mb-4" />
+                <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-3/4 mb-2" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full mb-2" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6" />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
