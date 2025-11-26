@@ -14,6 +14,7 @@ const Header: React.FC = () => {
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'Projects', href: '/projects' },
+    { name: 'Admin', href: '/admin' },
   ];
 
   const isActive = (path: string) => {
