@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, MapPin, Mail, Phone, Linkedin, Github, Award, Upload } from 'lucide-react';
+import { Download, MapPin, Mail, Phone, Linkedin, Github, Award, Upload, Trash2 } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';
 import { aboutService, documentsService } from '../lib/supabase';
@@ -8,7 +8,8 @@ import clovisImg from '../../image/clovis.png';
 import type { About } from '../types';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
-import { Link } from 'react-router-dom';
+import DocumentUploadModal from '../components/UI/DocumentUploadModal';
+import toast from 'react-hot-toast';
 
 interface Document {
   id: string;
@@ -53,23 +54,42 @@ I believe in the power of technology to transform businesses and improve lives. 
   });
   const [cvUrl, setCvUrl] = useState<string | null>(null);
   const [certificates, setCertificates] = useState<Document[]>([]);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const loadDocuments = async () => {
+    try {
+      const cv = await documentsService.getCV();
+      if (cv) {
+        setCvUrl(cv.file_url);
+      } else {
+        setCvUrl(null);
+      }
+
+      const certs = await documentsService.getByType('certificate');
+      setCertificates(certs || []);
+    } catch (error) {
+      console.error('Error loading documents:', error);
+    }
+  };
 
   useEffect(() => {
-    const loadDocuments = async () => {
-      try {
-        const cv = await documentsService.getCV();
-        if (cv) {
-          setCvUrl(cv.file_url);
-        }
-
-        const certs = await documentsService.getByType('certificate');
-        setCertificates(certs || []);
-      } catch (error) {
-        console.error('Error loading documents:', error);
-      }
-    };
     loadDocuments();
   }, []);
+
+  const handleDeleteDocument = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this document?')) {
+      return;
+    }
+
+    try {
+      await documentsService.deleteDocument(id);
+      toast.success('Document deleted successfully');
+      await loadDocuments();
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      toast.error('Failed to delete document');
+    }
+  };
 
   return (
   <div className="min-h-screen pt-24 pb-12 transition-colors duration-300 relative z-20">
@@ -202,12 +222,15 @@ I believe in the power of technology to transform businesses and improve lives. 
               Certificates & Achievements
             </h2>
             {user && (
-              <Link to="/admin/documents">
-                <Button variant="primary" size="sm" className="flex items-center">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Manage Documents
-                </Button>
-              </Link>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setIsUploadModalOpen(true)}
+                className="flex items-center"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Document
+              </Button>
             )}
           </div>
 
@@ -227,11 +250,26 @@ I believe in the power of technology to transform businesses and improve lives. 
                       <Award className={`w-10 h-10 ${
                         isDark ? 'text-yellow-400' : 'text-yellow-600'
                       }`} />
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        Certificate
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          Certificate
+                        </span>
+                        {user && (
+                          <button
+                            onClick={() => handleDeleteDocument(cert.id)}
+                            className={`p-1 rounded-lg transition-colors ${
+                              isDark
+                                ? 'hover:bg-red-900/20 text-red-400 hover:text-red-300'
+                                : 'hover:bg-red-50 text-red-600 hover:text-red-700'
+                            }`}
+                            title="Delete certificate"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <h3 className={`text-lg font-bold mb-2 flex-1 ${
                       isDark ? 'text-white' : 'text-gray-900'
@@ -273,16 +311,25 @@ I believe in the power of technology to transform businesses and improve lives. 
                   : 'Certificates will appear here once uploaded.'}
               </p>
               {user && (
-                <Link to="/admin/documents">
-                  <Button variant="primary" className="inline-flex items-center">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload Certificates
-                  </Button>
-                </Link>
+                <Button
+                  variant="primary"
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="inline-flex items-center"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Certificates
+                </Button>
               )}
             </Card>
           )}
         </motion.div>
+
+        {/* Upload Modal */}
+        <DocumentUploadModal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          onUploadComplete={loadDocuments}
+        />
       </div>
     </div>
   );

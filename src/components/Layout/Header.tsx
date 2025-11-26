@@ -1,21 +1,27 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import clovisImg from '../../../image/clovis.png';
-import { Moon, Sun, Menu, X } from 'lucide-react';
+import { Moon, Sun, Menu, X, LogIn, LogOut } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
+import { useAuthStore } from '../../stores/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Header: React.FC = () => {
   const location = useLocation();
   const { isDark, toggle } = useThemeStore();
+  const { user, signOut } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'Projects', href: '/projects' },
-    { name: 'Admin', href: '/admin' },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    window.location.href = '/';
+  };
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -66,12 +72,39 @@ const Header: React.FC = () => {
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
+            {/* Auth Button */}
+            {user ? (
+              <button
+                onClick={handleSignOut}
+                className={`hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  isDark
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-800'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="text-sm font-medium">Sign Out</span>
+              </button>
+            ) : (
+              <Link
+                to="/admin/login"
+                className={`hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  isDark
+                    ? 'text-gray-300 hover:text-white hover:bg-gray-800'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <LogIn className="w-4 h-4" />
+                <span className="text-sm font-medium">Sign In</span>
+              </Link>
+            )}
+
             {/* Theme Toggle */}
             <button
               onClick={toggle}
               className={`p-2 rounded-lg transition-colors duration-200 ${
-                isDark 
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-800' 
+                isDark
+                  ? 'text-gray-300 hover:text-white hover:bg-gray-800'
                   : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
               }`}
               aria-label="Toggle theme"
@@ -119,6 +152,34 @@ const Header: React.FC = () => {
                     {item.name}
                   </Link>
                 ))}
+                {/* Mobile Auth Button */}
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-800">
+                  {user ? (
+                    <button
+                      onClick={() => {
+                        handleSignOut();
+                        setIsMenuOpen(false);
+                      }}
+                      className={`flex items-center space-x-2 py-2 px-1 text-sm font-medium transition-colors duration-200 ${
+                        isDark ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
+                      }`}
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  ) : (
+                    <Link
+                      to="/admin/login"
+                      onClick={() => setIsMenuOpen(false)}
+                      className={`flex items-center space-x-2 py-2 px-1 text-sm font-medium transition-colors duration-200 ${
+                        isDark ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
+                      }`}
+                    >
+                      <LogIn className="w-4 h-4" />
+                      <span>Sign In</span>
+                    </Link>
+                  )}
+                </div>
               </div>
             </motion.nav>
           )}
