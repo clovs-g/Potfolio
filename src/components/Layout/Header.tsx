@@ -72,8 +72,8 @@ const Header: React.FC = () => {
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
-            {/* Auth Button */}
-            {user ? (
+            {/* Auth Button - Only show Sign Out if logged in */}
+            {user && (
               <button
                 onClick={handleSignOut}
                 className={`hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
@@ -85,18 +85,6 @@ const Header: React.FC = () => {
                 <LogOut className="w-4 h-4" />
                 <span className="text-sm font-medium">Sign Out</span>
               </button>
-            ) : (
-              <Link
-                to="/admin/login"
-                className={`hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
-                  isDark
-                    ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
-                }`}
-              >
-                <LogIn className="w-4 h-4" />
-                <span className="text-sm font-medium">Sign In</span>
-              </Link>
             )}
 
             {/* Theme Toggle */}
@@ -152,9 +140,9 @@ const Header: React.FC = () => {
                     {item.name}
                   </Link>
                 ))}
-                {/* Mobile Auth Button */}
-                <div className="pt-2 border-t border-gray-200 dark:border-gray-800">
-                  {user ? (
+                {/* Mobile Auth Button - Only show Sign Out if logged in */}
+                {user && (
+                  <div className="pt-2 border-t border-gray-200 dark:border-gray-800">
                     <button
                       onClick={() => {
                         handleSignOut();
@@ -167,19 +155,8 @@ const Header: React.FC = () => {
                       <LogOut className="w-4 h-4" />
                       <span>Sign Out</span>
                     </button>
-                  ) : (
-                    <Link
-                      to="/admin/login"
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center space-x-2 py-2 px-1 text-sm font-medium transition-colors duration-200 ${
-                        isDark ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'
-                      }`}
-                    >
-                      <LogIn className="w-4 h-4" />
-                      <span>Sign In</span>
-                    </Link>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </motion.nav>
           )}
