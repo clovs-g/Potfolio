@@ -136,13 +136,19 @@ const Projects: React.FC = () => {
         ) : filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProjects.map((project) => (
-              <Card key={project.id} transparent className="overflow-hidden h-full flex flex-col">
+              <Card
+                key={project.id}
+                className={`overflow-hidden h-full flex flex-col ${
+                  isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                }`}
+                hover={true}
+              >
                 {project.image_url && (
-                  <div className="aspect-w-16 aspect-h-9 overflow-hidden">
+                  <div className="w-full overflow-hidden">
                     <img
                       src={project.image_url}
                       alt={project.title}
-                      className="w-full h-48 object-cover rounded-t-xl"
+                      className="w-full h-48 object-cover"
                       loading="lazy"
                     />
                   </div>
@@ -155,7 +161,7 @@ const Projects: React.FC = () => {
                       {project.title}
                     </h3>
                     <p className={`text-sm mb-4 ${
-                      isDark ? 'text-gray-400' : 'text-gray-600'
+                      isDark ? 'text-gray-300' : 'text-gray-600'
                     }`}>
                       {project.description}
                     </p>
@@ -163,10 +169,10 @@ const Projects: React.FC = () => {
                       {project.tech_stack.map((tech) => (
                         <span
                           key={tech}
-                          className={`px-2 py-1 text-xs rounded-md ${
+                          className={`px-3 py-1 text-xs rounded-full font-medium ${
                             isDark
-                              ? 'bg-gray-700/50 text-gray-300 border border-gray-600'
-                              : 'bg-gray-100 text-gray-700 border border-gray-200'
+                              ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                              : 'bg-blue-50 text-blue-700 border border-blue-200'
                           }`}
                         >
                           {tech}
