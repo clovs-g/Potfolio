@@ -29,9 +29,7 @@ const AdminLayout: React.FC = () => {
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Home', href: '/admin/home', icon: LayoutDashboard },
     { name: 'About', href: '/admin/about', icon: User },
-    { name: 'Experience', href: '/admin/experience', icon: Briefcase },
     { name: 'Projects', href: '/admin/projects', icon: FolderOpen },
-    { name: 'Contact', href: '/admin/contact', icon: Settings },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 
