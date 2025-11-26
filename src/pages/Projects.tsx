@@ -26,146 +26,13 @@ const Projects: React.FC = () => {
 
   useEffect(() => {
     const loadProjects = async () => {
-      // Instant render from cache if available
       setIsFetching(true);
       try {
-        const cached = sessionStorage.getItem('projects_cache_v1');
-        if (cached) {
-          const parsed = JSON.parse(cached) as Project[];
-          setProjects(parsed);
-        }
-        // If no cache, show demo data immediately so content appears fast
-        if (!cached) {
-          const demoProjects: Project[] = [
-            {
-              id: '1',
-              title: 'Network Infrastructure Optimization',
-              description: 'Comprehensive network redesign for a large enterprise, improving performance by 40% and reducing latency by 60%.',
-              tech_stack: ['Cisco', 'MPLS', 'BGP', 'OSPF', 'SD-WAN'],
-              image_url: 'https://images.pexels.com/photos/2881232/pexels-photo-2881232.jpeg',
-              demo_url: null,
-              repo_url: null,
-              category: 'network',
-              created_at: '2024-01-15',
-              updated_at: '2024-01-15'
-            },
-            {
-              id: '2',
-              title: 'AI-Powered Analytics Dashboard',
-              description: 'Machine learning dashboard providing real-time insights and predictive analytics for business intelligence.',
-              tech_stack: ['Python', 'TensorFlow', 'React', 'D3.js', 'PostgreSQL'],
-              image_url: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg',
-              demo_url: 'https://demo.example.com',
-              repo_url: 'https://github.com/example',
-              category: 'ai',
-              created_at: '2024-02-10',
-              updated_at: '2024-02-10'
-            },
-            {
-              id: '3',
-              title: 'E-Commerce Platform',
-              description: 'Full-stack e-commerce solution with modern UI, payment integration, and admin dashboard.',
-              tech_stack: ['React', 'Node.js', 'MongoDB', 'Stripe', 'AWS'],
-              image_url: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg',
-              demo_url: 'https://demo.example.com',
-              repo_url: 'https://github.com/example',
-              category: 'web',
-              created_at: '2024-03-05',
-              updated_at: '2024-03-05'
-            }
-          ];
-          setProjects(demoProjects);
-        }
-      } catch {}
-
-      try {
-        // Add a soft timeout so UI never feels blocked
-        const withTimeout = <T,>(p: Promise<T>, ms: number) => new Promise<T>((resolve, reject) => {
-          const t = setTimeout(() => reject(new Error('timeout')), ms);
-          p.then((v) => { clearTimeout(t); resolve(v); }).catch((e) => { clearTimeout(t); reject(e); });
-        });
-
-        const data = await withTimeout(projectsService.getAll(), 800);
+        const data = await projectsService.getAll();
         setProjects(data || []);
-        try { sessionStorage.setItem('projects_cache_v1', JSON.stringify(data || [])); } catch {}
       } catch (error) {
         console.error('Error loading projects:', error);
-        // Fallback demo data
-        const demoProjects: Project[] = [
-          {
-            id: '1',
-            title: 'Network Infrastructure Optimization',
-            description: 'Comprehensive network redesign for a large enterprise, improving performance by 40% and reducing latency by 60%.',
-            tech_stack: ['Cisco', 'MPLS', 'BGP', 'OSPF', 'SD-WAN'],
-            image_url: 'https://images.pexels.com/photos/2881232/pexels-photo-2881232.jpeg',
-            demo_url: null,
-            repo_url: null,
-            category: 'network',
-            created_at: '2024-01-15',
-            updated_at: '2024-01-15'
-          },
-          {
-            id: '2',
-            title: 'AI-Powered Analytics Dashboard',
-            description: 'Machine learning dashboard providing real-time insights and predictive analytics for business intelligence.',
-            tech_stack: ['Python', 'TensorFlow', 'React', 'D3.js', 'PostgreSQL'],
-            image_url: 'https://images.pexels.com/photos/7688336/pexels-photo-7688336.jpeg',
-            demo_url: 'https://demo.example.com',
-            repo_url: 'https://github.com/example',
-            category: 'ai',
-            created_at: '2024-02-10',
-            updated_at: '2024-02-10'
-          },
-          {
-            id: '3',
-            title: 'E-Commerce Platform',
-            description: 'Full-stack e-commerce solution with modern UI, payment integration, and admin dashboard.',
-            tech_stack: ['React', 'Node.js', 'MongoDB', 'Stripe', 'AWS'],
-            image_url: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg',
-            demo_url: 'https://demo.example.com',
-            repo_url: 'https://github.com/example',
-            category: 'web',
-            created_at: '2024-03-05',
-            updated_at: '2024-03-05'
-          },
-          {
-            id: '4',
-            title: 'Mobile Network Monitoring System',
-            description: 'Real-time monitoring system for mobile network infrastructure with automated alerting.',
-            tech_stack: ['Java', 'Spring Boot', 'Kafka', 'Elasticsearch', 'React'],
-            image_url: 'https://images.pexels.com/photos/442150/pexels-photo-442150.jpeg',
-            demo_url: null,
-            repo_url: null,
-            category: 'network',
-            created_at: '2024-01-20',
-            updated_at: '2024-01-20'
-          },
-          {
-            id: '5',
-            title: 'Natural Language Processing API',
-            description: 'RESTful API for text analysis, sentiment analysis, and entity recognition using transformer models.',
-            tech_stack: ['Python', 'FastAPI', 'Transformers', 'Docker', 'Redis'],
-            image_url: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg',
-            demo_url: 'https://api.example.com',
-            repo_url: 'https://github.com/example',
-            category: 'ai',
-            created_at: '2024-02-25',
-            updated_at: '2024-02-25'
-          },
-          {
-            id: '6',
-            title: 'Portfolio Management System',
-            description: 'Comprehensive web application for investment portfolio tracking and analysis.',
-            tech_stack: ['Vue.js', 'Laravel', 'MySQL', 'Chart.js', 'Tailwind CSS'],
-            image_url: 'https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg',
-            demo_url: 'https://portfolio.example.com',
-            repo_url: 'https://github.com/example',
-            category: 'web',
-            created_at: '2024-03-15',
-            updated_at: '2024-03-15'
-          }
-        ];
-        setProjects(demoProjects);
+        setProjects([]);
       } finally {
         setIsFetching(false);
       }
@@ -254,77 +121,8 @@ const Projects: React.FC = () => {
           </div>
         </div>
 
-        {/* Projects Grid (no AnimatePresence to reduce overhead) */}
-        {filteredProjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style={{ contain: 'content' }}>
-            {filteredProjects.map((project) => (
-              <div key={project.id} style={{ contentVisibility: 'auto' }}>
-                <Card transparent className="overflow-hidden h-full flex flex-col">
-                  {project.image_url && (
-                    <div className="aspect-w-16 aspect-h-9 overflow-hidden">
-                      <img
-                        src={project.image_url}
-                        alt={project.title}
-                        className="w-full h-48 object-cover rounded-t-xl"
-                        loading="lazy"
-                        decoding="async"
-                        fetchPriority="low"
-                        width={1280}
-                        height={720}
-                      />
-                    </div>
-                  )}
-                  <div className="p-6 flex-1 flex flex-col">
-                    <div className="flex-1">
-                      <h3 className={`text-xl font-bold mb-3 ${
-                        isDark ? 'text-white' : 'text-gray-900'
-                      }`}>
-                        {project.title}
-                      </h3>
-                      <p className={`text-sm mb-4 ${
-                        isDark ? 'text-gray-400' : 'text-gray-600'
-                      }`}>
-                        {project.description}
-                      </p>
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {project.tech_stack.map((tech) => (
-                          <span
-                            key={tech}
-                            className={`px-2 py-1 text-xs rounded-md ${
-                              isDark
-                                ? 'bg-gray-700/30 text-gray-300'
-                                : 'bg-white/10 text-gray-700'
-                            }`}
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      {project.demo_url && (
-                        <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
-                          <Button variant="primary" size="sm" className="w-full flex items-center justify-center">
-                            <ExternalLink className="w-4 h-4 mr-1" />
-                            Demo
-                          </Button>
-                        </a>
-                      )}
-                      {project.repo_url && (
-                        <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
-                          <Button variant="outline" size="sm" className="w-full flex items-center justify-center">
-                            <Github className="w-4 h-4 mr-1" />
-                            GitHub
-                          </Button>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            ))}
-          </div>
-        ) : (
+        {/* Projects Grid */}
+        {isFetching ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="animate-pulse">
@@ -334,6 +132,75 @@ const Projects: React.FC = () => {
                 <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6" />
               </div>
             ))}
+          </div>
+        ) : filteredProjects.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredProjects.map((project) => (
+              <Card key={project.id} transparent className="overflow-hidden h-full flex flex-col">
+                {project.image_url && (
+                  <div className="aspect-w-16 aspect-h-9 overflow-hidden">
+                    <img
+                      src={project.image_url}
+                      alt={project.title}
+                      className="w-full h-48 object-cover rounded-t-xl"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                <div className="p-6 flex-1 flex flex-col">
+                  <div className="flex-1">
+                    <h3 className={`text-xl font-bold mb-3 ${
+                      isDark ? 'text-white' : 'text-gray-900'
+                    }`}>
+                      {project.title}
+                    </h3>
+                    <p className={`text-sm mb-4 ${
+                      isDark ? 'text-gray-400' : 'text-gray-600'
+                    }`}>
+                      {project.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {project.tech_stack.map((tech) => (
+                        <span
+                          key={tech}
+                          className={`px-2 py-1 text-xs rounded-md ${
+                            isDark
+                              ? 'bg-gray-700/50 text-gray-300 border border-gray-600'
+                              : 'bg-gray-100 text-gray-700 border border-gray-200'
+                          }`}
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    {project.demo_url && (
+                      <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                        <Button variant="primary" size="sm" className="w-full flex items-center justify-center">
+                          <ExternalLink className="w-4 h-4 mr-1" />
+                          Demo
+                        </Button>
+                      </a>
+                    )}
+                    {project.repo_url && (
+                      <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full flex items-center justify-center">
+                          <Github className="w-4 h-4 mr-1" />
+                          GitHub
+                        </Button>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              No projects found. Add projects from the admin panel.
+            </p>
           </div>
         )}
       </div>
