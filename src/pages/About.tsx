@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, MapPin, Mail, Phone, Linkedin, Github } from 'lucide-react';
+import { Download, MapPin, Mail, Phone, Linkedin, Github, Award } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 import { aboutService, documentsService } from '../lib/supabase';
 import clovisImg from '../../image/clovis.png';
 import type { About } from '../types';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
+
+interface Document {
+  id: string;
+  type: 'cv' | 'certificate';
+  title: string;
+  file_url: string;
+  file_name: string;
+  file_size: number;
+  created_at: string;
+}
 
 const About: React.FC = () => {
   const { isDark } = useThemeStore();
@@ -39,19 +49,23 @@ I believe in the power of technology to transform businesses and improve lives. 
     updated_at: '',
   });
   const [cvUrl, setCvUrl] = useState<string | null>(null);
+  const [certificates, setCertificates] = useState<Document[]>([]);
 
   useEffect(() => {
-    const loadCV = async () => {
+    const loadDocuments = async () => {
       try {
         const cv = await documentsService.getCV();
         if (cv) {
           setCvUrl(cv.file_url);
         }
+
+        const certs = await documentsService.getByType('certificate');
+        setCertificates(certs || []);
       } catch (error) {
-        console.error('Error loading CV:', error);
+        console.error('Error loading documents:', error);
       }
     };
-    loadCV();
+    loadDocuments();
   }, []);
 
   return (
@@ -170,6 +184,63 @@ I believe in the power of technology to transform businesses and improve lives. 
             </motion.div>
           </div>
         </div>
+
+        {/* Certificates Section */}
+        {certificates.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-16"
+          >
+            <h2 className={`text-3xl font-bold mb-8 text-center ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>
+              Certificates & Achievements
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {certificates.map((cert, index) => (
+                <motion.div
+                  key={cert.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 * index }}
+                >
+                  <Card className={`p-6 h-full flex flex-col ${
+                    isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                  }`}>
+                    <div className="flex items-start justify-between mb-4">
+                      <Award className={`w-10 h-10 ${
+                        isDark ? 'text-yellow-400' : 'text-yellow-600'
+                      }`} />
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        Certificate
+                      </span>
+                    </div>
+                    <h3 className={`text-lg font-bold mb-2 flex-1 ${
+                      isDark ? 'text-white' : 'text-gray-900'
+                    }`}>
+                      {cert.title}
+                    </h3>
+                    <p className={`text-sm mb-4 ${
+                      isDark ? 'text-gray-400' : 'text-gray-600'
+                    }`}>
+                      {cert.file_name}
+                    </p>
+                    <a href={cert.file_url} target="_blank" rel="noopener noreferrer" download>
+                      <Button variant="primary" size="sm" className="w-full flex items-center justify-center">
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Certificate
+                      </Button>
+                    </a>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );
