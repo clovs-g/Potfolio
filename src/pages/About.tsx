@@ -54,7 +54,7 @@ I believe in the power of technology to transform businesses and improve lives. 
           <div className="lg:col-span-2 flex flex-col items-center justify-center space-y-8">
             <div className="w-full flex flex-col items-center justify-center">
               <h1 className={`text-4xl sm:text-5xl font-extrabold mb-6 text-center ${isDark ? 'text-white' : 'text-gray-900'}`}>Ir Rugendabanga Clovis</h1>
-              <h2 className={`text-2xl sm:text-3xl font-normal mb-4 text-center bg-gradient-to-r from-blue-500 via-purple-500 to-orange-400 bg-clip-text text-transparent`}>About Me</h2>
+              <h2 className={`text-2xl sm:text-3xl font-normal mb-4 text-center bg-gradient-to-r from-cyan-500 via-blue-600 to-slate-700 bg-clip-text text-transparent`}>About Me</h2>
               <p className={`text-lg sm:text-xl font-normal text-center mb-8 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{aboutData!.bio.split('\n\n').join(' ')}</p>
               <div className="flex flex-wrap justify-center gap-3 mb-8">
                 {aboutData!.skills.map((skill) => (

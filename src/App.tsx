@@ -15,9 +15,7 @@ import ProtectedRoute from './components/admin/ProtectedRoute';
 // Pages
 import Home from './pages/Home';
 import About from './pages/About';
-import Experience from './pages/Experience';
 import Projects from './pages/Projects';
-import Contact from './pages/Contact';
 
 // Admin Pages
 import Login from './pages/admin/Login';
@@ -25,9 +23,7 @@ import Dashboard from './pages/admin/Dashboard';
 import SignUp from './pages/admin/SignUp';
 import AdminHome from './pages/admin/AdminHome';
 import AdminAbout from './pages/admin/AdminAbout';
-import AdminExperience from './pages/admin/AdminExperience';
 import AdminProjects from './pages/admin/AdminProjects';
-import AdminContact from './pages/admin/AdminContact';
 
 function App() {
   const { isDark } = useThemeStore();
@@ -65,9 +61,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="home" element={<AdminHome />} />
             <Route path="about" element={<AdminAbout />} />
-            <Route path="experience" element={<AdminExperience />} />
             <Route path="projects" element={<AdminProjects />} />
-            <Route path="contact" element={<AdminContact />} />
             <Route path="settings" element={<div>Admin Settings Page (Coming Soon)</div>} />
           </Route>
 
@@ -87,9 +81,7 @@ function App() {
                     <Routes>
                       <Route path="/" element={<Home />} />
                       <Route path="/about" element={<About />} />
-                      <Route path="/experience" element={<Experience />} />
                       <Route path="/projects" element={<Projects />} />
-                      <Route path="/contact" element={<Contact />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                   </div>

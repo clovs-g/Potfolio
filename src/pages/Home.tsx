@@ -44,7 +44,7 @@ const Home: React.FC = () => {
               isDark ? 'text-white' : 'text-gray-900'
             }`}>
               <span className="block">Ir Rugendabanga</span>
-              <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-cyan-500 via-blue-600 to-slate-700 bg-clip-text text-transparent">
                 Clovis
               </span>
             </h1>
@@ -127,7 +127,7 @@ const Home: React.FC = () => {
                 viewport={{ once: true }}
               >
                 <div className={`w-16 h-16 rounded-lg ${
-                  isDark ? 'bg-gradient-to-br from-blue-500 to-purple-600' : 'bg-gradient-to-br from-blue-600 to-purple-700'
+                  isDark ? 'bg-gradient-to-br from-cyan-500 to-blue-700' : 'bg-gradient-to-br from-cyan-600 to-blue-800'
                 } flex items-center justify-center mb-6`}>
                   <specialty.icon className="w-8 h-8 text-white" />
                 </div>
