@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import clovisImg from '../../../image/clovis.png';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  LayoutDashboard, 
-  FolderOpen, 
-  Briefcase, 
-  User, 
-  Settings, 
-  LogOut, 
-  Menu, 
+import {
+  LayoutDashboard,
+  FolderOpen,
+  Briefcase,
+  User,
+  Settings,
+  LogOut,
+  Menu,
   X,
   Moon,
-  Sun
+  Sun,
+  FileText
 } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
 import { useAuthStore } from '../../stores/authStore';
@@ -30,6 +31,7 @@ const AdminLayout: React.FC = () => {
     { name: 'Home', href: '/admin/home', icon: LayoutDashboard },
     { name: 'About', href: '/admin/about', icon: User },
     { name: 'Projects', href: '/admin/projects', icon: FolderOpen },
+    { name: 'Documents', href: '/admin/documents', icon: FileText },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];
 

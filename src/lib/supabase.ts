@@ -124,7 +124,7 @@ export const aboutService = {
       .from('about')
       .select('*')
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -136,8 +136,85 @@ export const aboutService = {
       .eq('id', 1)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
+  }
+};
+
+export const documentsService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getByType(type: 'cv' | 'certificate') {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('type', type)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getCV() {
+    const { data, error } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('type', 'cv')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async create(document: { type: 'cv' | 'certificate'; title: string; file_url: string; file_name: string; file_size: number }) {
+    const { data, error } = await supabase
+      .from('documents')
+      .insert([document])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('documents')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
+  async uploadFile(file: File, type: 'cv' | 'certificate') {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${type}-${Date.now()}.${fileExt}`;
+    const filePath = `${type}s/${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from('documents')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('documents')
+      .getPublicUrl(filePath);
+
+    return { publicUrl, fileName: file.name, fileSize: file.size };
   }
 };

@@ -24,6 +24,7 @@ import SignUp from './pages/admin/SignUp';
 import AdminHome from './pages/admin/AdminHome';
 import AdminAbout from './pages/admin/AdminAbout';
 import AdminProjects from './pages/admin/AdminProjects';
+import AdminDocuments from './pages/admin/AdminDocuments';
 
 function App() {
   const { isDark } = useThemeStore();
@@ -62,6 +63,7 @@ function App() {
             <Route path="home" element={<AdminHome />} />
             <Route path="about" element={<AdminAbout />} />
             <Route path="projects" element={<AdminProjects />} />
+            <Route path="documents" element={<AdminDocuments />} />
             <Route path="settings" element={<div>Admin Settings Page (Coming Soon)</div>} />
           </Route>
 

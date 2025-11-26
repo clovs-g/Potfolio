@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Download, MapPin, Mail, Phone, Linkedin, Github } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
-import { aboutService } from '../lib/supabase';
+import { aboutService, documentsService } from '../lib/supabase';
 import clovisImg from '../../image/clovis.png';
 import type { About } from '../types';
 import Card from '../components/UI/Card';
@@ -38,13 +38,21 @@ I believe in the power of technology to transform businesses and improve lives. 
     resume_url: '',
     updated_at: '',
   });
-  // removed stray photo_url
+  const [cvUrl, setCvUrl] = useState<string | null>(null);
 
-  // Removed useEffect and aboutService call to keep about story stable
-
-  // Removed loading check and LoadingSpinner
-
-  // aboutData is always defined and stable
+  useEffect(() => {
+    const loadCV = async () => {
+      try {
+        const cv = await documentsService.getCV();
+        if (cv) {
+          setCvUrl(cv.file_url);
+        }
+      } catch (error) {
+        console.error('Error loading CV:', error);
+      }
+    };
+    loadCV();
+  }, []);
 
   return (
   <div className="min-h-screen pt-24 pb-12 transition-colors duration-300 relative z-20">
@@ -93,11 +101,13 @@ I believe in the power of technology to transform businesses and improve lives. 
                 <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   IT Professional & Technology Leader
                 </p>
-                {aboutData!.resume_url && (
-                  <Button className="mt-4 w-full">
-                    <Download className="w-4 h-4 mr-2" />
-                    Download CV
-                  </Button>
+                {cvUrl && (
+                  <a href={cvUrl} target="_blank" rel="noopener noreferrer" download>
+                    <Button className="mt-4 w-full bg-blue-600 hover:bg-blue-700">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download CV
+                    </Button>
+                  </a>
                 )}
               </Card>
             </motion.div>
