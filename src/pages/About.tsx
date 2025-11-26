@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, MapPin, Mail, Phone, Linkedin, Github, Award } from 'lucide-react';
+import { Download, MapPin, Mail, Phone, Linkedin, Github, Award, Upload } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
+import { useAuthStore } from '../stores/authStore';
 import { aboutService, documentsService } from '../lib/supabase';
 import clovisImg from '../../image/clovis.png';
 import type { About } from '../types';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
+import { Link } from 'react-router-dom';
 
 interface Document {
   id: string;
@@ -20,6 +22,7 @@ interface Document {
 
 const About: React.FC = () => {
   const { isDark } = useThemeStore();
+  const { user } = useAuthStore();
   const [aboutData, setAboutData] = useState<About | null>({
     id: '1',
     bio: `I'm an experienced IT Professional with expertise spanning Network & Service Mobile infrastructure, Full-Stack Web Development, and AI Engineering. With a passion for innovative technology solutions, I specialize in creating robust, scalable systems that drive business success.
@@ -186,18 +189,29 @@ I believe in the power of technology to transform businesses and improve lives. 
         </div>
 
         {/* Certificates Section */}
-        {certificates.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="mt-16"
-          >
-            <h2 className={`text-3xl font-bold mb-8 text-center ${
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mt-16"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <h2 className={`text-3xl font-bold ${
               isDark ? 'text-white' : 'text-gray-900'
             }`}>
               Certificates & Achievements
             </h2>
+            {user && (
+              <Link to="/admin/documents">
+                <Button variant="primary" size="sm" className="flex items-center">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Manage Documents
+                </Button>
+              </Link>
+            )}
+          </div>
+
+          {certificates.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {certificates.map((cert, index) => (
                 <motion.div
@@ -239,8 +253,36 @@ I believe in the power of technology to transform businesses and improve lives. 
                 </motion.div>
               ))}
             </div>
-          </motion.div>
-        )}
+          ) : (
+            <Card className={`p-12 text-center ${
+              isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+            }`}>
+              <Award className={`w-16 h-16 mx-auto mb-4 ${
+                isDark ? 'text-gray-600' : 'text-gray-400'
+              }`} />
+              <h3 className={`text-xl font-semibold mb-2 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
+                No Certificates Yet
+              </h3>
+              <p className={`text-sm mb-6 ${
+                isDark ? 'text-gray-400' : 'text-gray-600'
+              }`}>
+                {user
+                  ? 'Upload your certificates and achievements to showcase your expertise.'
+                  : 'Certificates will appear here once uploaded.'}
+              </p>
+              {user && (
+                <Link to="/admin/documents">
+                  <Button variant="primary" className="inline-flex items-center">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Certificates
+                  </Button>
+                </Link>
+              )}
+            </Card>
+          )}
+        </motion.div>
       </div>
     </div>
   );
