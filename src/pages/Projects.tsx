@@ -1,21 +1,27 @@
 import React, { useEffect, useMemo, useState, useDeferredValue } from 'react';
-import { Filter, ExternalLink, Github, Search } from 'lucide-react';
+import { Filter, ExternalLink, Github, Search, Plus, Edit, Trash2 } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
+import { useAuthStore } from '../stores/authStore';
 import { projectsService } from '../lib/supabase';
 import type { Project } from '../types';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import ProjectModal from '../components/UI/ProjectModal';
+import toast from 'react-hot-toast';
 // ImageWithFallback removed — restored original <img> usage below
 
 const Projects: React.FC = () => {
   const { isDark } = useThemeStore();
+  const { user } = useAuthStore();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const deferredQuery = useDeferredValue(searchQuery);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   const categories = [
     { id: 'all', name: 'All Projects' },
@@ -24,22 +30,51 @@ const Projects: React.FC = () => {
     { id: 'ai', name: 'AI Engineering' },
   ];
 
-  useEffect(() => {
-    const loadProjects = async () => {
-      setIsFetching(true);
-      try {
-        const data = await projectsService.getAll();
-        setProjects(data || []);
-      } catch (error) {
-        console.error('Error loading projects:', error);
-        setProjects([]);
-      } finally {
-        setIsFetching(false);
-      }
-    };
+  const loadProjects = async () => {
+    setIsFetching(true);
+    try {
+      const data = await projectsService.getAll();
+      setProjects(data || []);
+    } catch (error) {
+      console.error('Error loading projects:', error);
+      setProjects([]);
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
+  useEffect(() => {
     loadProjects();
   }, []);
+
+  const handleAddProject = () => {
+    setEditingProject(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this project?')) {
+      return;
+    }
+
+    try {
+      await projectsService.delete(id);
+      toast.success('Project deleted successfully');
+      await loadProjects();
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast.error('Failed to delete project');
+    }
+  };
+
+  const handleModalSave = async () => {
+    await loadProjects();
+  };
 
   const computedFiltered = useMemo(() => {
     let filtered = projects;
@@ -68,11 +103,24 @@ const Projects: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className={`text-4xl sm:text-5xl font-bold mb-6 ${
-            isDark ? 'text-white' : 'text-gray-900'
-          }`}>
-            My Projects
-          </h1>
+          <div className="flex items-center justify-center mb-6">
+            <h1 className={`text-4xl sm:text-5xl font-bold ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>
+              My Projects
+            </h1>
+            {user && (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleAddProject}
+                className="ml-4 flex items-center"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Project
+              </Button>
+            )}
+          </div>
           <p className={`text-lg max-w-2xl mx-auto ${
             isDark ? 'text-gray-300' : 'text-gray-600'
           }`}>
@@ -155,11 +203,39 @@ const Projects: React.FC = () => {
                 )}
                 <div className="p-6 flex-1 flex flex-col">
                   <div className="flex-1">
-                    <h3 className={`text-xl font-bold mb-3 ${
-                      isDark ? 'text-white' : 'text-gray-900'
-                    }`}>
-                      {project.title}
-                    </h3>
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className={`text-xl font-bold flex-1 ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        {project.title}
+                      </h3>
+                      {user && (
+                        <div className="flex items-center space-x-2 ml-2">
+                          <button
+                            onClick={() => handleEditProject(project)}
+                            className={`p-1.5 rounded-lg transition-colors ${
+                              isDark
+                                ? 'hover:bg-blue-900/20 text-blue-400 hover:text-blue-300'
+                                : 'hover:bg-blue-50 text-blue-600 hover:text-blue-700'
+                            }`}
+                            title="Edit project"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProject(project.id)}
+                            className={`p-1.5 rounded-lg transition-colors ${
+                              isDark
+                                ? 'hover:bg-red-900/20 text-red-400 hover:text-red-300'
+                                : 'hover:bg-red-50 text-red-600 hover:text-red-700'
+                            }`}
+                            title="Delete project"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                     <p className={`text-sm mb-4 ${
                       isDark ? 'text-gray-300' : 'text-gray-600'
                     }`}>
@@ -204,11 +280,32 @@ const Projects: React.FC = () => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              No projects found. Add projects from the admin panel.
+            <p className={`text-lg mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+              {user ? 'No projects yet. Click "Add Project" to get started!' : 'No projects available yet.'}
             </p>
+            {user && (
+              <Button
+                variant="primary"
+                onClick={handleAddProject}
+                className="inline-flex items-center"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Your First Project
+              </Button>
+            )}
           </div>
         )}
+
+        {/* Project Modal */}
+        <ProjectModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingProject(null);
+          }}
+          onSave={handleModalSave}
+          project={editingProject}
+        />
       </div>
     </div>
   );
