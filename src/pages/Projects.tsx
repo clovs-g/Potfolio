@@ -32,54 +32,33 @@ const Projects: React.FC = () => {
   ];
 
   const loadProjects = async () => {
-    const startTime = Date.now();
     setIsFetching(true);
+
+    const timeoutId = setTimeout(() => {
+      console.warn('Frontend: Loading timeout - stopping spinner');
+      setIsFetching(false);
+      toast.error('Loading projects is taking longer than expected. Please refresh the page.');
+    }, 10000);
 
     try {
       console.log('Frontend: Loading projects from Supabase...');
       const data = await projectsService.getAll();
-      console.log('Frontend: Projects loaded successfully:', data);
-      console.log('Frontend: Number of projects:', data?.length || 0);
+      clearTimeout(timeoutId);
+      console.log('Frontend: Projects loaded:', data?.length || 0);
 
       if (!data || data.length === 0) {
-        console.warn('Frontend: No projects returned from database');
-        toast.error('No projects found');
+        console.warn('Frontend: No projects found in database');
         setProjects([]);
-        setIsFetching(false);
-        return;
-      }
-
-      if (data && data.length > 0) {
+      } else {
+        setProjects(data);
         console.log('Frontend: First project:', data[0]);
-      }
-
-      setProjects(data);
-
-      const imageUrls = data.slice(0, 6).map(p => p.image_url).filter(Boolean);
-      if (imageUrls.length > 0) {
-        console.log('Frontend: Preloading', imageUrls.length, 'images');
-        const preloadPromises = imageUrls.map(url => {
-          return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = resolve;
-            img.onerror = resolve;
-            img.src = url;
-          });
-        });
-        await Promise.all(preloadPromises);
-      }
-
-      const elapsed = Date.now() - startTime;
-      const minDisplayTime = 300;
-      if (elapsed < minDisplayTime) {
-        await new Promise(resolve => setTimeout(resolve, minDisplayTime - elapsed));
       }
 
       setIsFetching(false);
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('Frontend: Error loading projects:', error);
-      console.error('Frontend: Error details:', JSON.stringify(error, null, 2));
-      toast.error('Failed to load projects from database');
+      toast.error('Failed to load projects. Please check your connection.');
       setProjects([]);
       setIsFetching(false);
     }
@@ -214,7 +193,7 @@ const Projects: React.FC = () => {
         {/* Projects Grid */}
         {isFetching ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="w-full h-48 bg-gray-200 dark:bg-gray-800 rounded-xl mb-4" />
                 <div className="h-5 bg-gray-200 dark:bg-gray-800 rounded w-3/4 mb-2" />
