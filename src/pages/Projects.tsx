@@ -33,10 +33,13 @@ const Projects: React.FC = () => {
   const loadProjects = async () => {
     setIsFetching(true);
     try {
+      console.log('Loading projects...');
       const data = await projectsService.getAll();
+      console.log('Projects loaded:', data);
       setProjects(data || []);
     } catch (error) {
       console.error('Error loading projects:', error);
+      toast.error('Failed to load projects');
       setProjects([]);
     } finally {
       setIsFetching(false);
