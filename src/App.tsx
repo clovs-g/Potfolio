@@ -39,6 +39,40 @@ function AnalyticsTracker() {
   return null;
 }
 
+// Diagnostic component - shows environment status
+function EnvDiagnostic() {
+  const location = useLocation();
+
+  if (location.pathname !== '/env-check') return null;
+
+  const envStatus = {
+    VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || 'NOT SET',
+    VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ?
+      `${import.meta.env.VITE_SUPABASE_ANON_KEY.substring(0, 20)}...` : 'NOT SET',
+    isConfigured: !!(import.meta.env.VITE_SUPABASE_URL &&
+                     import.meta.env.VITE_SUPABASE_ANON_KEY &&
+                     import.meta.env.VITE_SUPABASE_URL.includes('supabase.co')),
+    buildTime: new Date().toISOString()
+  };
+
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'monospace', background: '#1a1a1a', color: '#0f0', minHeight: '100vh' }}>
+      <h1 style={{ color: '#0f0', marginBottom: '2rem' }}>Environment Diagnostics</h1>
+      <pre style={{ background: '#000', padding: '1rem', borderRadius: '4px' }}>
+        {JSON.stringify(envStatus, null, 2)}
+      </pre>
+      <div style={{ marginTop: '2rem', color: '#fff' }}>
+        <h2 style={{ color: '#0f0' }}>Status:</h2>
+        <p style={{ fontSize: '1.2rem' }}>
+          {envStatus.isConfigured ?
+            '✅ Supabase is CONFIGURED correctly' :
+            '❌ Supabase is NOT configured - needs redeploy'}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const { isDark } = useThemeStore();
   const { initialize } = useAuthStore();
@@ -58,6 +92,7 @@ function App() {
   return (
     <Router>
       <AnalyticsTracker />
+      <EnvDiagnostic />
       <div className={`min-h-screen transition-colors duration-300 ${
         isDark ? 'bg-gray-900' : 'bg-gray-50'
       }`}>
