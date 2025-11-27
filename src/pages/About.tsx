@@ -46,8 +46,8 @@ I believe in the power of technology to transform businesses and improve lives. 
       email: 'clovisrugendabanga4@gmail.com',
       phone: '0702913471',
       location: 'Uganda Kampala',
-      linkedin: 'https://linkedin.com/in/clovis',
-      github: 'https://github.com/clovis'
+      linkedin: 'https://www.linkedin.com/in/clovis-deklo-268016392/',
+      github: 'https://github.com/clovs-g'
     },
     resume_url: '',
     updated_at: '',

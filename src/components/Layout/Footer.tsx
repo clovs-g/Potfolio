@@ -7,8 +7,8 @@ const Footer: React.FC = () => {
   const { isDark } = useThemeStore();
 
   const socialLinks = [
-    { icon: Github, href: 'https://github.com/dashboard', label: 'GitHub' },
-    { icon: Linkedin, href: 'https://www.linkedin.com/in/rugendabanga-kulondwa-5b24b1384/', label: 'LinkedIn' },
+    { icon: Github, href: 'https://github.com/clovs-g', label: 'GitHub' },
+    { icon: Linkedin, href: 'https://www.linkedin.com/in/clovis-deklo-268016392/', label: 'LinkedIn' },
     { icon: Mail, href: 'mailto:clovisrugendabanga4@gmail.com', label: 'Email' },
   ];
 
