@@ -16,7 +16,7 @@ const Projects: React.FC = () => {
   const { user } = useAuthStore();
   const [projects, setProjects] = useState<Project[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
-  const [isFetching, setIsFetching] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const deferredQuery = useDeferredValue(searchQuery);
@@ -31,25 +31,55 @@ const Projects: React.FC = () => {
   ];
 
   const loadProjects = async () => {
+    const startTime = Date.now();
     setIsFetching(true);
+
     try {
       console.log('Frontend: Loading projects from Supabase...');
       const data = await projectsService.getAll();
       console.log('Frontend: Projects loaded successfully:', data);
       console.log('Frontend: Number of projects:', data?.length || 0);
+
+      if (!data || data.length === 0) {
+        console.warn('Frontend: No projects returned from database');
+        toast.error('No projects found');
+        setProjects([]);
+        setIsFetching(false);
+        return;
+      }
+
       if (data && data.length > 0) {
         console.log('Frontend: First project:', data[0]);
       }
-      setProjects(data || []);
-      if (!data || data.length === 0) {
-        console.warn('Frontend: No projects returned from database');
+
+      setProjects(data);
+
+      const imageUrls = data.slice(0, 6).map(p => p.image_url).filter(Boolean);
+      if (imageUrls.length > 0) {
+        console.log('Frontend: Preloading', imageUrls.length, 'images');
+        const preloadPromises = imageUrls.map(url => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = resolve;
+            img.src = url;
+          });
+        });
+        await Promise.all(preloadPromises);
       }
+
+      const elapsed = Date.now() - startTime;
+      const minDisplayTime = 300;
+      if (elapsed < minDisplayTime) {
+        await new Promise(resolve => setTimeout(resolve, minDisplayTime - elapsed));
+      }
+
+      setIsFetching(false);
     } catch (error) {
       console.error('Frontend: Error loading projects:', error);
       console.error('Frontend: Error details:', JSON.stringify(error, null, 2));
       toast.error('Failed to load projects from database');
       setProjects([]);
-    } finally {
       setIsFetching(false);
     }
   };
