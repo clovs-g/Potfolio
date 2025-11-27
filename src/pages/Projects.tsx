@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useDeferredValue } from 'react';
 import { Filter, ExternalLink, Github, Search, Plus, Edit, Trash2 } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';
-import { projectsService } from '../lib/supabase';
+import { projectsService, supabaseConfigured, supabaseConfigWarning } from '../lib/supabase';
 import { trackProjectView } from '../lib/analytics';
 import type { Project } from '../types';
 import Card from '../components/UI/Card';
@@ -34,31 +34,53 @@ const Projects: React.FC = () => {
   const loadProjects = async () => {
     setIsFetching(true);
 
+    if (!supabaseConfigured) {
+      const warning = supabaseConfigWarning();
+      console.error('Supabase not configured:', warning);
+      toast.error('Database not configured. Please contact the site administrator.');
+      setIsFetching(false);
+      setProjects([]);
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
       console.warn('Frontend: Loading timeout - stopping spinner');
       setIsFetching(false);
-      toast.error('Loading projects is taking longer than expected. Please refresh the page.');
+      toast.error('Loading projects is taking longer than expected. Please check your internet connection and try again.');
     }, 10000);
 
     try {
       console.log('Frontend: Loading projects from Supabase...');
+      console.log('Frontend: Supabase URL:', import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Not set');
+
       const data = await projectsService.getAll();
       clearTimeout(timeoutId);
       console.log('Frontend: Projects loaded:', data?.length || 0);
 
       if (!data || data.length === 0) {
         console.warn('Frontend: No projects found in database');
+        toast.info('No projects available yet. Check back soon!');
         setProjects([]);
       } else {
         setProjects(data);
-        console.log('Frontend: First project:', data[0]);
+        console.log('Frontend: Successfully loaded', data.length, 'projects');
       }
 
       setIsFetching(false);
-    } catch (error) {
+    } catch (error: any) {
       clearTimeout(timeoutId);
       console.error('Frontend: Error loading projects:', error);
-      toast.error('Failed to load projects. Please check your connection.');
+      console.error('Frontend: Error message:', error?.message);
+      console.error('Frontend: Error details:', error?.details);
+
+      if (error?.message?.includes('JWT')) {
+        toast.error('Authentication error. Please check database configuration.');
+      } else if (error?.message?.includes('Failed to fetch')) {
+        toast.error('Network error. Please check your internet connection.');
+      } else {
+        toast.error('Failed to load projects. Please try again later.');
+      }
+
       setProjects([]);
       setIsFetching(false);
     }
