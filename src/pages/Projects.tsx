@@ -33,13 +33,21 @@ const Projects: React.FC = () => {
   const loadProjects = async () => {
     setIsFetching(true);
     try {
-      console.log('Loading projects...');
+      console.log('Frontend: Loading projects from Supabase...');
       const data = await projectsService.getAll();
-      console.log('Projects loaded:', data);
+      console.log('Frontend: Projects loaded successfully:', data);
+      console.log('Frontend: Number of projects:', data?.length || 0);
+      if (data && data.length > 0) {
+        console.log('Frontend: First project:', data[0]);
+      }
       setProjects(data || []);
+      if (!data || data.length === 0) {
+        console.warn('Frontend: No projects returned from database');
+      }
     } catch (error) {
-      console.error('Error loading projects:', error);
-      toast.error('Failed to load projects');
+      console.error('Frontend: Error loading projects:', error);
+      console.error('Frontend: Error details:', JSON.stringify(error, null, 2));
+      toast.error('Failed to load projects from database');
       setProjects([]);
     } finally {
       setIsFetching(false);
