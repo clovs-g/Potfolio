@@ -515,7 +515,7 @@ const AdminProjects: React.FC = () => {
         {/* Projects Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           <AnimatePresence>
-            {filteredProjects.map((project) => (
+            {filteredProjects.map((project, index) => (
               <motion.div
                 key={project.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -524,7 +524,13 @@ const AdminProjects: React.FC = () => {
                 transition={{ duration: 0.5 }}
               >
                 <Card className="p-6 flex flex-col h-full">
-                  <img src={project.image_url || ''} alt={project.title} className="rounded-lg mb-4 object-cover h-40 w-full" />
+                  <img
+                    src={project.image_url || ''}
+                    alt={project.title}
+                    className="rounded-lg mb-4 object-cover h-40 w-full"
+                    loading={index < 6 ? "eager" : "lazy"}
+                    fetchpriority={index < 3 ? "high" : "auto"}
+                  />
                   <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{project.title}</h3>
                   <p className={`text-base mb-4 flex-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{project.description}</p>
                   <div className="flex flex-wrap gap-2 mb-4">

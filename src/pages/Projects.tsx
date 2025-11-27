@@ -186,7 +186,7 @@ const Projects: React.FC = () => {
           </div>
         ) : filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project) => (
+            {filteredProjects.map((project, index) => (
               <Card
                 key={project.id}
                 className={`overflow-hidden h-full flex flex-col ${
@@ -200,7 +200,8 @@ const Projects: React.FC = () => {
                       src={project.image_url}
                       alt={project.title}
                       className="w-full h-full object-cover"
-                      loading="lazy"
+                      loading={index < 6 ? "eager" : "lazy"}
+                      fetchpriority={index < 3 ? "high" : "auto"}
                     />
                   </div>
                 )}
