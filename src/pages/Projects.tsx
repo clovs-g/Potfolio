@@ -37,7 +37,11 @@ const Projects: React.FC = () => {
     if (!supabaseConfigured) {
       const warning = supabaseConfigWarning();
       console.error('Supabase not configured:', warning);
-      toast.error('Database not configured. Please contact the site administrator.');
+      console.error('Environment variables:', {
+        url: import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'MISSING',
+        key: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'MISSING'
+      });
+      toast.error('Database connection not configured. The site may need to be redeployed with environment variables.');
       setIsFetching(false);
       setProjects([]);
       return;
@@ -46,12 +50,12 @@ const Projects: React.FC = () => {
     const timeoutId = setTimeout(() => {
       console.warn('Frontend: Loading timeout - stopping spinner');
       setIsFetching(false);
-      toast.error('Loading projects is taking longer than expected. Please check your internet connection and try again.');
+      toast.error('Request timed out. This may be a configuration issue. Check the browser console for details.');
     }, 10000);
 
     try {
       console.log('Frontend: Loading projects from Supabase...');
-      console.log('Frontend: Supabase URL:', import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Not set');
+      console.log('Frontend: Supabase configured:', supabaseConfigured);
 
       const data = await projectsService.getAll();
       clearTimeout(timeoutId);
@@ -72,11 +76,12 @@ const Projects: React.FC = () => {
       console.error('Frontend: Error loading projects:', error);
       console.error('Frontend: Error message:', error?.message);
       console.error('Frontend: Error details:', error?.details);
+      console.error('Frontend: Supabase URL being used:', import.meta.env.VITE_SUPABASE_URL?.substring(0, 30));
 
-      if (error?.message?.includes('JWT')) {
-        toast.error('Authentication error. Please check database configuration.');
-      } else if (error?.message?.includes('Failed to fetch')) {
-        toast.error('Network error. Please check your internet connection.');
+      if (error?.message?.includes('JWT') || error?.message?.includes('apikey')) {
+        toast.error('Authentication error. Invalid API key configuration.');
+      } else if (error?.message?.includes('Failed to fetch') || error?.message?.includes('fetch')) {
+        toast.error('Cannot connect to database. Check environment variables and redeploy.');
       } else {
         toast.error('Failed to load projects. Please try again later.');
       }

@@ -1,17 +1,30 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 // Helpful flag consumers can use to detect misconfiguration in environments like Vercel
 export const supabaseConfigured = (
   !!import.meta.env.VITE_SUPABASE_URL &&
   !!import.meta.env.VITE_SUPABASE_ANON_KEY &&
-  import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
-  import.meta.env.VITE_SUPABASE_ANON_KEY !== 'placeholder-key'
+  import.meta.env.VITE_SUPABASE_URL.includes('supabase.co') &&
+  import.meta.env.VITE_SUPABASE_ANON_KEY.length > 20
 );
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Log configuration status for debugging
+if (typeof window !== 'undefined') {
+  console.log('Supabase Configuration Status:', {
+    configured: supabaseConfigured,
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    urlPrefix: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'MISSING',
+  });
+}
+
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
 
 export function supabaseConfigWarning(): string | null {
   if (supabaseConfigured) return null;

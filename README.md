@@ -180,31 +180,71 @@ npm run preview
 
 ## 📈 Performance Optimizations
 
-## 🔒 Deployment / Environment variables (important)
+## 🔒 Deployment / Environment Variables (CRITICAL)
 
-The app requires Supabase configuration to be present in the environment where it runs (both locally and in Vercel). Add the following environment variables:
+### Required Environment Variables
+
+The app requires Supabase configuration to be present in the environment where it runs (both locally and in Vercel):
 
 ```env
 VITE_SUPABASE_URL=https://your-project-ref.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_public_key
 ```
 
-Optional testing helper (do NOT enable in public production unless you understand the risks):
+### Vercel Deployment Instructions
 
-```env
-# Allows an in-memory demo admin login. Set to 'true' to enable.
-VITE_ALLOW_DEMO_LOGIN=true
+**IMPORTANT**: Environment variables in Vite apps are baked into the bundle at build time. If you add or update environment variables in Vercel, you MUST redeploy with a fresh build.
 
-# Demo credentials (only used when VITE_ALLOW_DEMO_LOGIN=true)
-VITE_DEMO_ADMIN_EMAIL=admin@example.com
-VITE_DEMO_ADMIN_PASSWORD=password123
-```
+#### Steps to Configure Vercel:
 
-On Vercel: go to Project Settings → Environment Variables and add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (and the demo vars only for safe testing environments). After updating env vars, trigger a redeploy.
+1. **Set Environment Variables**:
+   - Go to your Vercel project dashboard
+   - Navigate to: **Settings** → **Environment Variables**
+   - Add the following variables:
+     - `VITE_SUPABASE_URL` = `https://your-project-ref.supabase.co`
+     - `VITE_SUPABASE_ANON_KEY` = `your_anon_key`
+   - Environment: Select **"Production"** or **"All Environments"**
+   - Click **Save**
 
-If you see "Supabase appears to be unconfigured" in the admin login toast, it means these environment variables were not detected in the running app.
+2. **Trigger Fresh Deployment** (CRITICAL STEP):
+   - Go to the **Deployments** tab
+   - Click on your most recent deployment
+   - Click the **three dots menu** (•••)
+   - Select **"Redeploy"**
+   - **UNCHECK** "Use existing Build Cache"
+   - Click **"Redeploy"**
 
-Quick access: The admin login page contains a "Sign in with demo" button which creates a client-side mock admin user for testing; this does NOT authenticate with Supabase and should only be used for local/dev testing or secure preview environments.
+3. **Verify Configuration**:
+   - After deployment completes, visit your site
+   - Open browser DevTools Console (F12)
+   - Check for "Supabase Configuration Status" log
+   - It should show `configured: true`
+
+### Troubleshooting
+
+**Problem**: Projects page shows "Loading projects is taking longer than expected" or "Database connection not configured"
+
+**Cause**: Environment variables are not loaded in the production build
+
+**Solution**:
+1. Verify environment variables are saved in Vercel settings
+2. Redeploy WITHOUT using build cache
+3. Environment variables must exist BEFORE the build starts
+4. Check browser console for configuration status logs
+
+**Problem**: "Cannot connect to database" error
+
+**Possible Causes**:
+- Supabase project is paused or deleted
+- Invalid API keys
+- CORS issues (check Supabase dashboard for allowed origins)
+- Network connectivity issues
+
+**Debug Steps**:
+1. Open browser DevTools Console
+2. Look for "Supabase Configuration Status" log
+3. Verify `configured: true` and `urlPrefix` shows your actual Supabase URL
+4. Check Network tab for failed requests to Supabase
 
 
 - **Code Splitting**: Routes and components are lazy-loaded
