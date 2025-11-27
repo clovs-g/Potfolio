@@ -272,10 +272,14 @@ const AdminProjects: React.FC = () => {
   useEffect(() => {
     const loadProjects = async () => {
       try {
+        console.log('Admin: Loading projects from database...');
         const data = await projectsService.getAll();
+        console.log('Admin: Projects loaded successfully:', data);
+        console.log('Admin: Number of projects:', data?.length || 0);
         setProjects(data || []);
       } catch (error) {
-        // fallback demo data
+        console.error('Admin: Error loading projects from database:', error);
+        console.log('Admin: Loading fallback demo data...');
         const demoProjects: Project[] = [
           {
             id: '1',
