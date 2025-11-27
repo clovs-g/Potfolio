@@ -192,11 +192,11 @@ const Projects: React.FC = () => {
                 hover={true}
               >
                 {project.image_url && (
-                  <div className="w-full overflow-hidden">
+                  <div className="w-full h-48 overflow-hidden">
                     <img
                       src={project.image_url}
                       alt={project.title}
-                      className="w-full h-48 object-cover"
+                      className="w-full h-full object-cover"
                       loading="lazy"
                     />
                   </div>

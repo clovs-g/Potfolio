@@ -215,23 +215,12 @@ I believe in the power of technology to transform businesses and improve lives. 
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-16"
         >
-          <div className="flex items-center justify-between mb-8">
+          <div className="mb-8">
             <h2 className={`text-3xl font-bold ${
               isDark ? 'text-white' : 'text-gray-900'
             }`}>
               Certificates & Achievements
             </h2>
-            {user && (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setIsUploadModalOpen(true)}
-                className="flex items-center"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Upload Document
-              </Button>
-            )}
           </div>
 
           {certificates.length > 0 ? (
@@ -303,23 +292,11 @@ I believe in the power of technology to transform businesses and improve lives. 
               }`}>
                 No Certificates Yet
               </h3>
-              <p className={`text-sm mb-6 ${
+              <p className={`text-sm ${
                 isDark ? 'text-gray-400' : 'text-gray-600'
               }`}>
-                {user
-                  ? 'Upload your certificates and achievements to showcase your expertise.'
-                  : 'Certificates will appear here once uploaded.'}
+                Certificates will appear here once uploaded.
               </p>
-              {user && (
-                <Button
-                  variant="primary"
-                  onClick={() => setIsUploadModalOpen(true)}
-                  className="inline-flex items-center"
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Certificates
-                </Button>
-              )}
             </Card>
           )}
         </motion.div>
