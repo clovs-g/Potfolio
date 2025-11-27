@@ -1,83 +1,136 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  BarChart, 
-  Users, 
-  Eye, 
-  MessageSquare, 
-  TrendingUp, 
+import {
+  BarChart,
+  Users,
+  Eye,
+  MessageSquare,
+  TrendingUp,
   Calendar,
   Globe,
   Smartphone
 } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
 import Card from '../../components/UI/Card';
+import LoadingSpinner from '../../components/UI/LoadingSpinner';
+import { analyticsService } from '../../lib/analytics';
+import toast from 'react-hot-toast';
+
+interface Activity {
+  page_path: string;
+  page_title: string;
+  device_type: string;
+  created_at: string;
+}
 
 const Dashboard: React.FC = () => {
   const { isDark } = useThemeStore();
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalViews: 12345,
-    uniqueVisitors: 8901,
-    projectViews: 456,
-    contactMessages: 23
+    totalViews: 0,
+    uniqueVisitors: 0,
+    projectViews: 0,
+    contactMessages: 0
   });
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+  const [deviceStats, setDeviceStats] = useState({
+    desktop: 0,
+    mobile: 0,
+    tablet: 0
+  });
+
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
+
+  const loadAnalytics = async () => {
+    try {
+      setLoading(true);
+      const [totalViews, uniqueVisitors, projectViews, messages, devices, activity] = await Promise.all([
+        analyticsService.getTotalPageViews(30),
+        analyticsService.getUniqueVisitors(30),
+        analyticsService.getTotalProjectViews(30),
+        analyticsService.getUnreadMessagesCount(),
+        analyticsService.getDeviceAnalytics(30),
+        analyticsService.getRecentActivity(10)
+      ]);
+
+      setStats({
+        totalViews,
+        uniqueVisitors,
+        projectViews,
+        contactMessages: messages
+      });
+
+      const total = (devices.desktop || 0) + (devices.mobile || 0) + (devices.tablet || 0);
+      setDeviceStats({
+        desktop: total > 0 ? Math.round((devices.desktop || 0) / total * 100) : 0,
+        mobile: total > 0 ? Math.round((devices.mobile || 0) / total * 100) : 0,
+        tablet: total > 0 ? Math.round((devices.tablet || 0) / total * 100) : 0
+      });
+
+      setRecentActivities(activity || []);
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+      toast.error('Failed to load analytics');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return `${seconds} seconds ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    return `${Math.floor(seconds / 86400)} days ago`;
+  };
 
   const statCards = [
     {
       title: 'Total Page Views',
       value: stats.totalViews.toLocaleString(),
-      change: '+12.5%',
-      changeType: 'increase',
+      change: 'Last 30 days',
+      changeType: 'neutral',
       icon: Eye,
       color: 'blue'
     },
     {
       title: 'Unique Visitors',
       value: stats.uniqueVisitors.toLocaleString(),
-      change: '+8.2%',
-      changeType: 'increase',
+      change: 'Last 30 days',
+      changeType: 'neutral',
       icon: Users,
       color: 'green'
     },
     {
       title: 'Project Views',
       value: stats.projectViews.toLocaleString(),
-      change: '+15.3%',
-      changeType: 'increase',
+      change: 'Last 30 days',
+      changeType: 'neutral',
       icon: BarChart,
       color: 'purple'
     },
     {
       title: 'Contact Messages',
       value: stats.contactMessages.toString(),
-      change: '+5 this week',
+      change: 'Unread messages',
       changeType: 'neutral',
       icon: MessageSquare,
       color: 'orange'
     }
   ];
 
-  const recentActivities = [
-    { type: 'project_view', description: 'AI-Powered Analytics Dashboard viewed', time: '2 hours ago' },
-    { type: 'contact', description: 'New contact message received', time: '4 hours ago' },
-    { type: 'project_view', description: 'E-Commerce Platform project viewed', time: '6 hours ago' },
-    { type: 'page_view', description: 'About page visited from mobile', time: '8 hours ago' },
-    { type: 'project_view', description: 'Network Infrastructure project viewed', time: '1 day ago' }
-  ];
-
-  const deviceStats = {
-    desktop: 60,
-    mobile: 35,
-    tablet: 5
-  };
-
-  const topPages = [
-    { page: 'Home', views: 4532, percentage: 37 },
-    { page: 'Projects', views: 3210, percentage: 26 },
-    { page: 'About', views: 2890, percentage: 23 },
-    { page: 'Experience', views: 1234, percentage: 10 },
-    { page: 'Contact', views: 479, percentage: 4 }
-  ];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -109,12 +162,7 @@ const Dashboard: React.FC = () => {
                   <p className={`text-2xl font-bold mt-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {stat.value}
                   </p>
-                  <p className={`text-sm mt-1 flex items-center ${
-                    stat.changeType === 'increase' ? 'text-green-500' : 
-                    stat.changeType === 'decrease' ? 'text-red-500' : 
-                    isDark ? 'text-gray-400' : 'text-gray-600'
-                  }`}>
-                    {stat.changeType === 'increase' && <TrendingUp className="w-4 h-4 mr-1" />}
+                  <p className={`text-sm mt-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     {stat.change}
                   </p>
                 </div>
@@ -144,23 +192,29 @@ const Dashboard: React.FC = () => {
               Recent Activity
             </h2>
             <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-center space-x-4">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.type === 'project_view' ? 'bg-blue-500' :
-                    activity.type === 'contact' ? 'bg-green-500' :
-                    'bg-gray-400'
-                  }`} />
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                      {activity.description}
-                    </p>
-                    <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
-                      {activity.time}
-                    </p>
+              {recentActivities.length === 0 ? (
+                <p className={`text-sm text-center py-8 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  No recent activity yet. Visitors will appear here once they start browsing your portfolio.
+                </p>
+              ) : (
+                recentActivities.map((activity, index) => (
+                  <div key={index} className="flex items-center space-x-4">
+                    <div className={`w-2 h-2 rounded-full ${
+                      activity.device_type === 'mobile' ? 'bg-green-500' :
+                      activity.device_type === 'tablet' ? 'bg-purple-500' :
+                      'bg-blue-500'
+                    }`} />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                        {activity.page_title || activity.page_path} visited from {activity.device_type}
+                      </p>
+                      <p className={`text-xs ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                        {getTimeAgo(activity.created_at)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </Card>
         </motion.div>
@@ -238,43 +292,6 @@ const Dashboard: React.FC = () => {
         </motion.div>
       </div>
 
-      {/* Top Pages */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-      >
-        <Card className="p-6">
-          <h2 className={`text-xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Top Pages
-          </h2>
-          <div className="space-y-4">
-            {topPages.map((page, index) => (
-              <div key={page.page} className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {index + 1}.
-                  </span>
-                  <span className={`text-sm font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    {page.page}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {page.views.toLocaleString()} views
-                  </span>
-                  <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-blue-500 h-2 rounded-full" 
-                      style={{ width: `${page.percentage}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </motion.div>
     </div>
   );
 };

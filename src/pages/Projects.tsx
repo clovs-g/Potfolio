@@ -3,6 +3,7 @@ import { Filter, ExternalLink, Github, Search, Plus, Edit, Trash2 } from 'lucide
 import { useThemeStore } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';
 import { projectsService } from '../lib/supabase';
+import { trackProjectView } from '../lib/analytics';
 import type { Project } from '../types';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
@@ -300,7 +301,13 @@ const Projects: React.FC = () => {
                   </div>
                   <div className="flex gap-2">
                     {project.demo_url && (
-                      <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                      <a
+                        href={project.demo_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1"
+                        onClick={() => trackProjectView(project.id)}
+                      >
                         <Button variant="primary" size="sm" className="w-full flex items-center justify-center">
                           <ExternalLink className="w-4 h-4 mr-1" />
                           Demo
@@ -308,7 +315,13 @@ const Projects: React.FC = () => {
                       </a>
                     )}
                     {project.repo_url && (
-                      <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="flex-1">
+                      <a
+                        href={project.repo_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1"
+                        onClick={() => trackProjectView(project.id)}
+                      >
                         <Button variant="outline" size="sm" className="w-full flex items-center justify-center">
                           <Github className="w-4 h-4 mr-1" />
                           GitHub

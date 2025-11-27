@@ -1,9 +1,10 @@
 import HeroScene from './components/3D/HeroScene';
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useThemeStore } from './stores/themeStore';
 import { useAuthStore } from './stores/authStore';
+import { trackPageView } from './lib/analytics';
 
 // Layout Components
 import Header from './components/Layout/Header';
@@ -26,6 +27,18 @@ import AdminAbout from './pages/admin/AdminAbout';
 import AdminProjects from './pages/admin/AdminProjects';
 import AdminDocuments from './pages/admin/AdminDocuments';
 
+function AnalyticsTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.pathname.startsWith('/admin')) {
+      trackPageView(location.pathname, document.title);
+    }
+  }, [location]);
+
+  return null;
+}
+
 function App() {
   const { isDark } = useThemeStore();
   const { initialize } = useAuthStore();
@@ -44,6 +57,7 @@ function App() {
 
   return (
     <Router>
+      <AnalyticsTracker />
       <div className={`min-h-screen transition-colors duration-300 ${
         isDark ? 'bg-gray-900' : 'bg-gray-50'
       }`}>
