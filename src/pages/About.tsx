@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, MapPin, Mail, Phone, Linkedin, Github, Award, Upload, Trash2 } from 'lucide-react';
+import { Download, MapPin, Mail, Phone, Linkedin, Github, Award, Upload, Trash2, User } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';
 import { aboutService, documentsService } from '../lib/supabase';
-import clovisImg from '../../image/clovis.png';
 import type { About } from '../types';
 import Card from '../components/UI/Card';
 import Button from '../components/UI/Button';
@@ -82,7 +81,7 @@ I believe in the power of technology to transform businesses and improve lives. 
     }
 
     try {
-      await documentsService.deleteDocument(id);
+      await documentsService.delete(id);
       toast.success('Document deleted successfully');
       await loadDocuments();
     } catch (error) {

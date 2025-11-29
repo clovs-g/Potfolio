@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, MapPin, Mail, Phone, Linkedin, Github } from 'lucide-react';
+import { Download, MapPin, Mail, Phone, Linkedin, Github, User } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
 import { aboutService } from '../../lib/supabase';
 import type { About } from '../../types';
-import clovisImg from '../../../image/clovis.png';
 import Card from '../../components/UI/Card';
 import Button from '../../components/UI/Button';
 

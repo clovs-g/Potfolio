@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import clovisImg from '../../../image/clovis.png';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {

@@ -4,11 +4,11 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import toast from 'react-hot-toast';
+import { User } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
 import { useAuthStore } from '../../stores/authStore';
 import Button from '../../components/UI/Button';
 import Card from '../../components/UI/Card';
-import clovisImg from '../../../image/clovis.png';
 
 const schema = yup.object({
   email: yup.string().required('Email is required').email('Invalid email format'),

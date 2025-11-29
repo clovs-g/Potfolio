@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import clovisImg from '../../../image/clovis.png';
-import { Moon, Sun, Menu, X, LogIn, LogOut } from 'lucide-react';
+import { Moon, Sun, Menu, X, LogIn, LogOut, User } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
 import { useAuthStore } from '../../stores/authStore';
 import { motion, AnimatePresence } from 'framer-motion';

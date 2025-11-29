@@ -1,6 +1,5 @@
 import React from 'react';
-import { Github, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
-import clovisImg from '../../../image/clovis.png';
+import { Github, Linkedin, Mail, Phone, MapPin, User } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
 
 const Footer: React.FC = () => {
