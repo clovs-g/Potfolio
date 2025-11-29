@@ -1,5 +1,8 @@
 import { supabase } from './supabase';
 
+// Temporary flag to disable analytics during PostgREST schema cache issues
+const ANALYTICS_ENABLED = false;
+
 function getSessionId(): string {
   let sessionId = sessionStorage.getItem('analytics_session_id');
   if (!sessionId) {
@@ -50,6 +53,8 @@ function getOS(): string {
 }
 
 export async function trackPageView(pagePath: string, pageTitle: string) {
+  if (!ANALYTICS_ENABLED) return;
+
   try {
     await supabase
       .from('page_views')
@@ -70,6 +75,8 @@ export async function trackPageView(pagePath: string, pageTitle: string) {
 }
 
 export async function trackProjectView(projectId: string) {
+  if (!ANALYTICS_ENABLED) return;
+
   try {
     await supabase
       .from('project_views')
@@ -105,6 +112,7 @@ export async function submitContactMessage(name: string, email: string, message:
 
 export const analyticsService = {
   async getPageViewStats(days: number = 30) {
+    if (!ANALYTICS_ENABLED) return [];
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -119,6 +127,8 @@ export const analyticsService = {
   },
 
   async getTotalPageViews(days: number = 30) {
+    if (!ANALYTICS_ENABLED) return 0;
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -132,6 +142,8 @@ export const analyticsService = {
   },
 
   async getUniqueVisitors(days: number = 30) {
+    if (!ANALYTICS_ENABLED) return 0;
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -146,6 +158,8 @@ export const analyticsService = {
   },
 
   async getProjectViewStats() {
+    if (!ANALYTICS_ENABLED) return [];
+
     const { data, error } = await supabase
       .from('project_views')
       .select('project_id, projects(title)')
@@ -156,6 +170,8 @@ export const analyticsService = {
   },
 
   async getTotalProjectViews(days: number = 30) {
+    if (!ANALYTICS_ENABLED) return 0;
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -169,6 +185,8 @@ export const analyticsService = {
   },
 
   async getContactMessages(status?: string) {
+    if (!ANALYTICS_ENABLED) return [];
+
     let query = supabase
       .from('contact_messages')
       .select('*')
@@ -184,6 +202,8 @@ export const analyticsService = {
   },
 
   async getUnreadMessagesCount() {
+    if (!ANALYTICS_ENABLED) return 0;
+
     const { count, error } = await supabase
       .from('contact_messages')
       .select('*', { count: 'exact', head: true })
@@ -194,6 +214,8 @@ export const analyticsService = {
   },
 
   async getDeviceAnalytics(days: number = 30) {
+    if (!ANALYTICS_ENABLED) return {};
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -213,6 +235,8 @@ export const analyticsService = {
   },
 
   async getRecentActivity(limit: number = 10) {
+    if (!ANALYTICS_ENABLED) return [];
+
     const { data, error } = await supabase
       .from('page_views')
       .select('page_path, page_title, device_type, created_at')
