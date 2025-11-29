@@ -66,12 +66,12 @@ export async function trackPageView(pagePath: string, pageTitle: string) {
       }]);
 
     if (error) {
-      console.error('Analytics: Error tracking page view:', error);
-    } else {
-      console.log('Analytics: Page view tracked:', pagePath);
+      // Silently fail - analytics should not break the user experience
+      console.debug('Analytics: Could not track page view');
     }
   } catch (error) {
-    console.error('Analytics: Failed to track page view:', error);
+    // Silently fail
+    console.debug('Analytics: Tracking unavailable');
   }
 }
 
@@ -86,12 +86,12 @@ export async function trackProjectView(projectId: string) {
       }]);
 
     if (error) {
-      console.error('Analytics: Error tracking project view:', error);
-    } else {
-      console.log('Analytics: Project view tracked:', projectId);
+      // Silently fail - analytics should not break the user experience
+      console.debug('Analytics: Could not track project view');
     }
   } catch (error) {
-    console.error('Analytics: Failed to track project view:', error);
+    // Silently fail
+    console.debug('Analytics: Tracking unavailable');
   }
 }
 
