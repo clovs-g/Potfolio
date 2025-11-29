@@ -51,9 +51,9 @@ function getOS(): string {
 
 export async function trackPageView(pagePath: string, pageTitle: string) {
   try {
-    const { error } = await supabase
+    await supabase
       .from('page_views')
-      .insert([{
+      .insert({
         page_path: pagePath,
         page_title: pageTitle,
         referrer: document.referrer || 'direct',
@@ -63,35 +63,23 @@ export async function trackPageView(pagePath: string, pageTitle: string) {
         os: getOS(),
         session_id: getSessionId(),
         visitor_id: getVisitorId(),
-      }]);
-
-    if (error) {
-      // Silently fail - analytics should not break the user experience
-      console.debug('Analytics: Could not track page view');
-    }
+      });
   } catch (error) {
-    // Silently fail
-    console.debug('Analytics: Tracking unavailable');
+    // Silently fail - analytics should not break the user experience
   }
 }
 
 export async function trackProjectView(projectId: string) {
   try {
-    const { error } = await supabase
+    await supabase
       .from('project_views')
-      .insert([{
+      .insert({
         project_id: projectId,
         session_id: getSessionId(),
         visitor_id: getVisitorId(),
-      }]);
-
-    if (error) {
-      // Silently fail - analytics should not break the user experience
-      console.debug('Analytics: Could not track project view');
-    }
+      });
   } catch (error) {
-    // Silently fail
-    console.debug('Analytics: Tracking unavailable');
+    // Silently fail - analytics should not break the user experience
   }
 }
 
