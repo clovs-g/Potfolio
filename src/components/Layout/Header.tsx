@@ -34,8 +34,8 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className={`w-10 h-10 rounded-lg overflow-hidden shadow-lg flex items-center justify-center bg-white`}> 
-              <img src={clovisImg} alt="Clovis logo" className="w-full h-full object-cover" />
+            <div className={`w-10 h-10 rounded-lg shadow-lg flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-white'}`}>
+              <User className={`w-6 h-6 ${isDark ? 'text-white' : 'text-gray-900'}`} />
             </div>
             <span className={`hidden sm:block font-bold text-xl ${isDark ? 'text-white' : 'text-gray-900'}`}>
               Clovis

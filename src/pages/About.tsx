@@ -126,8 +126,8 @@ I believe in the power of technology to transform businesses and improve lives. 
               transition={{ duration: 0.8 }}
             >
               <Card className="p-6 text-center">
-                <div className="w-32 h-32 mx-auto rounded-full mb-4 overflow-hidden bg-white shadow-sm">
-              <img src={clovisImg} alt="Clovis" className="w-full h-full object-cover" />
+                <div className={`w-32 h-32 mx-auto rounded-full mb-4 shadow-sm flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-white'}`}>
+                  <User className={`w-16 h-16 ${isDark ? 'text-white' : 'text-gray-900'}`} />
                 </div>
                 <h3 className={`text-xl font-bold mb-2 ${
                   isDark ? 'text-white' : 'text-gray-900'

@@ -21,8 +21,8 @@ const Footer: React.FC = () => {
           {/* About */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className={`w-8 h-8 rounded-lg overflow-hidden shadow-sm flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-white'}`}>
-                <img src={clovisImg} alt="Clovis logo" className="w-full h-full object-cover" />
+              <div className={`w-8 h-8 rounded-lg shadow-sm flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-white'}`}>
+                <User className={`w-5 h-5 ${isDark ? 'text-white' : 'text-gray-900'}`} />
               </div>
               <span className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Ir Rugendabanga Clovis

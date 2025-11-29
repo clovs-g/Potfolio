@@ -54,8 +54,8 @@ const SignUp: React.FC = () => {
       >
         <Card className="p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto rounded-lg overflow-hidden bg-white shadow-sm flex items-center justify-center">
-              <img src={clovisImg} alt="Clovis" className="w-full h-full object-cover" />
+            <div className={`w-16 h-16 mx-auto rounded-lg shadow-sm flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-white'}`}>
+              <User className={`w-8 h-8 ${isDark ? 'text-white' : 'text-gray-900'}`} />
             </div>
             <h2 className={`text-2xl font-bold mt-4 mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>Admin Sign Up</h2>
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Create a new admin account</p>

@@ -75,8 +75,8 @@ const AdminLayout: React.FC = () => {
         {/* Sidebar Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <Link to="/admin" className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg overflow-hidden shadow-lg flex items-center justify-center bg-white">
-              <img src={clovisImg} alt="Clovis logo" className="w-full h-full object-cover" />
+            <div className={`w-10 h-10 rounded-lg shadow-lg flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-white'}`}>
+              <User className={`w-6 h-6 ${isDark ? 'text-white' : 'text-gray-900'}`} />
             </div>
             <div>
               <h1 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
