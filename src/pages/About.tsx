@@ -93,20 +93,30 @@ I believe in the power of technology to transform businesses and improve lives. 
   return (
   <div className="min-h-screen pt-24 pb-12 transition-colors duration-300 relative z-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Bio */}
-          <div className="lg:col-span-2 flex flex-col items-center justify-center space-y-8">
-            <div className="w-full flex flex-col items-center justify-center">
-              <h1 className={`text-4xl sm:text-5xl font-extrabold mb-6 text-center ${isDark ? 'text-white' : 'text-gray-900'}`}>Ir Rugendabanga Clovis</h1>
-              <h2 className={`text-2xl sm:text-3xl font-normal mb-4 text-center bg-gradient-to-r from-cyan-500 via-blue-600 to-slate-700 bg-clip-text text-transparent`}>About Me</h2>
-              <p className={`text-lg sm:text-xl font-normal text-center mb-8 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{aboutData!.bio.split('\n\n').join(' ')}</p>
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
+          <div className="lg:col-span-2 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className={`text-4xl sm:text-5xl font-extrabold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                Ir Rugendabanga Clovis
+              </h1>
+              <h2 className="text-3xl sm:text-4xl font-normal mb-6 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent">
+                About Me
+              </h2>
+              <p className={`text-base sm:text-lg leading-relaxed mb-8 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                {aboutData!.bio.split('\n\n').join(' ')}
+              </p>
+              <div className="flex flex-wrap gap-3">
                 {aboutData!.skills.map((skill) => (
                   <span
                     key={skill}
-                    className={`px-4 py-2 rounded-lg text-base font-medium text-center shadow-sm ${
-                      isDark 
-                        ? 'bg-gray-800 text-gray-300 border border-gray-700' 
+                    className={`px-5 py-2.5 rounded-lg text-sm font-medium ${
+                      isDark
+                        ? 'bg-gray-800/80 text-gray-300 border border-gray-700/50'
                         : 'bg-white text-gray-700 border border-gray-200'
                     }`}
                   >
@@ -114,37 +124,29 @@ I believe in the power of technology to transform businesses and improve lives. 
                   </span>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Right Column - Contact & Photo */}
-          <div className="space-y-8">
-            {/* Professional Photo Placeholder */}
+          <div className="space-y-6">
+            {/* Professional Photo Card */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <Card className="p-6 text-center">
-                <div className={`w-32 h-32 mx-auto rounded-full mb-4 shadow-sm flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-white'}`}>
-                  <User className={`w-16 h-16 ${isDark ? 'text-white' : 'text-gray-900'}`} />
+              <Card className="p-8 text-center">
+                <div className={`w-40 h-40 mx-auto rounded-full mb-6 shadow-lg flex items-center justify-center overflow-hidden ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
+                  <User className={`w-20 h-20 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
                 </div>
                 <h3 className={`text-xl font-bold mb-2 ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}>
                   Ir Rugendabanga Clovis
                 </h3>
-                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className={`text-sm mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   IT Professional & Technology Leader
                 </p>
-                {cvUrl && (
-                  <a href={cvUrl} target="_blank" rel="noopener noreferrer" download>
-                    <Button className="mt-4 w-full bg-blue-600 hover:bg-blue-700">
-                      <Download className="w-4 h-4 mr-2" />
-                      Download CV
-                    </Button>
-                  </a>
-                )}
               </Card>
             </motion.div>
 
@@ -154,37 +156,39 @@ I believe in the power of technology to transform businesses and improve lives. 
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <Card className="p-6">
-                <h3 className={`text-lg font-bold mb-4 ${
+              <Card className="p-8">
+                <h3 className={`text-xl font-bold mb-6 ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}>
                   Contact Information
                 </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <Mail className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                    <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                <div className="space-y-5">
+                  <div className="flex items-start space-x-3">
+                    <Mail className={`w-5 h-5 mt-0.5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <span className={`text-sm break-all ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       {aboutData!.contact_info.email}
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Phone className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                    <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <Phone className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       {aboutData!.contact_info.phone}
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <MapPin className={`w-5 h-5 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                    <span className={`${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <MapPin className={`w-5 h-5 flex-shrink-0 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <span className={`text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                       {aboutData!.contact_info.location}
                     </span>
                   </div>
-                  <div className="flex space-x-4 pt-4">
+                  <div className="flex space-x-3 pt-4">
                     <a
                       href={aboutData!.contact_info.linkedin}
-                      className={`p-2 rounded-lg transition-colors duration-200 ${
-                        isDark 
-                          ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`p-2.5 rounded-lg transition-colors duration-200 ${
+                        isDark
+                          ? 'text-gray-400 hover:text-white hover:bg-gray-700'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                       }`}
                     >
@@ -192,9 +196,11 @@ I believe in the power of technology to transform businesses and improve lives. 
                     </a>
                     <a
                       href={aboutData!.contact_info.github}
-                      className={`p-2 rounded-lg transition-colors duration-200 ${
-                        isDark 
-                          ? 'text-gray-400 hover:text-white hover:bg-gray-700' 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`p-2.5 rounded-lg transition-colors duration-200 ${
+                        isDark
+                          ? 'text-gray-400 hover:text-white hover:bg-gray-700'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                       }`}
                     >
