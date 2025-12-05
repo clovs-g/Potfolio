@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, MapPin, Mail, Phone, Linkedin, Github, Award, Upload, Trash2, User } from 'lucide-react';
+import { Download, MapPin, Mail, Phone, Linkedin, Github, Award, Upload, Trash2 } from 'lucide-react';
 import { useThemeStore } from '../stores/themeStore';
 import { useAuthStore } from '../stores/authStore';
 import { aboutService, documentsService } from '../lib/supabase';
@@ -136,8 +136,12 @@ I believe in the power of technology to transform businesses and improve lives. 
               transition={{ duration: 0.8 }}
             >
               <Card className="p-8 text-center">
-                <div className={`w-40 h-40 mx-auto rounded-full mb-6 shadow-lg flex items-center justify-center overflow-hidden ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
-                  <User className={`w-20 h-20 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
+                <div className="w-40 h-40 mx-auto rounded-full mb-6 shadow-lg overflow-hidden bg-white">
+                  <img
+                    src="/clovic-removebg-preview copy.png"
+                    alt="Ir Rugendabanga Clovis"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <h3 className={`text-xl font-bold mb-2 ${
                   isDark ? 'text-white' : 'text-gray-900'

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Moon, Sun, Menu, X, LogIn, LogOut, User } from 'lucide-react';
+import { Moon, Sun, Menu, X, LogIn, LogOut } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore';
 import { useAuthStore } from '../../stores/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -34,8 +34,12 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className={`w-10 h-10 rounded-lg shadow-lg flex items-center justify-center ${isDark ? 'bg-white/10' : 'bg-white'}`}>
-              <User className={`w-6 h-6 ${isDark ? 'text-white' : 'text-gray-900'}`} />
+            <div className="w-10 h-10 rounded-full shadow-lg overflow-hidden bg-white">
+              <img
+                src="/clovic-removebg-preview copy.png"
+                alt="Clovis"
+                className="w-full h-full object-cover"
+              />
             </div>
             <span className={`hidden sm:block font-bold text-xl ${isDark ? 'text-white' : 'text-gray-900'}`}>
               Clovis
